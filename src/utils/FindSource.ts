@@ -91,6 +91,8 @@ function findSource(creep:Creep) {
                     maxOps: 1000,
                     heuristicWeight: 1.2
                 });
+            } else {
+                console.log(`${creep.name}: 找不到资源源`)
             }
 
         }

@@ -106,7 +106,7 @@ let builderRole = {
 
                 // extention开关
                 if (site.structureType === STRUCTURE_EXTENSION) {
-                    return true;
+                    return false;
                 }
 
                 // 先不给container修

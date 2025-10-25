@@ -81,7 +81,9 @@ let upgradeRole = {
                 if (upgradeResult == ERR_NOT_IN_RANGE) {
                     creep.moveTo(controller, {
                         visualizePathStyle: { stroke: '#66ccff' },
-                        ignoreCreeps: false  // 改为false，避免路径冲突
+                        ignoreCreeps: false,
+                        maxOps: 1000,
+                        heuristicWeight: 1.2
                     });
                 }
             } else {
