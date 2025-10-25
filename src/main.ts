@@ -6,6 +6,8 @@ import upgradeRole from "roles/upgrader";
 
 import builderRole from "roles/builder";
 
+import { getSpawnAndExtensionEnergy } from "utils/GetEnergy";
+
 import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
@@ -67,7 +69,7 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  // console.log(`Current game tick is ${Game.time}`);
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
@@ -84,6 +86,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   upgradeRole.create(); // 升级者
 
   builderRole.create(); // 建筑师
+
+  // 获取能量 - 使用spawn所在房间
+  const spawn = Game.spawns[MAIN_SPAWN_NAME];
+  if (spawn && spawn.room) {
+    console.log("energy:" + getSpawnAndExtensionEnergy(spawn.room));
+  } else {
+    console.log("警告：无法找到spawn或spawn房间");
+  }
 
 
   // 执行任务
