@@ -80,7 +80,7 @@ let builderRole = {
                 if (buildResult === ERR_NOT_IN_RANGE) {
                     // 移动到工地
                     creep.moveTo(targetSite, {
-                        visualizePathStyle: { stroke: '#00ccff' },
+                        visualizePathStyle: { stroke: '#00ff2aff' },
                         reusePath: 50,
                         ignoreCreeps: true
                     });
