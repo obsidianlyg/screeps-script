@@ -87,8 +87,76 @@ let builderRole = {
             // 任务：建造工地
 
             // 1. 查找目标工地
+            const constructionSites = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+
+            // --- 核心筛选逻辑：排除接近完成的道路 ---
+            const filteredSites = constructionSites.filter(site => {
+
+                // 如果是道路（Road）
+                if (site.structureType === STRUCTURE_ROAD) {
+                    // 假设道路总进度是 300，我们设置一个绝对值阈值，例如：剩余工作量小于 30 就跳过
+                    // 意思是：进度 > 270 的道路我们暂时不建
+                    const ROAD_PROGRESS_SKIP_THRESHOLD = 0.90; // 90%
+                    // return site.progress / site.progressTotal < ROAD_PROGRESS_SKIP_THRESHOLD;
+                    // TODO 临时设置小路优先
+                    return site.progressTotal < 1000
+                }
+
+                // 先不给extention修
+                if (site.structureType === STRUCTURE_EXTENSION) {
+                    return false;
+                }
+
+                // 其他所有建筑（Spawn, Extension, Container 等）都保留，不进行进度筛选
+                return true;
+            });
             // 查找房间内距离最近的工地
-            const targetSite = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+            let targetSite: ConstructionSite | null = null;
+            // 2. 在筛选后的列表中，进行优先级排序
+            if (filteredSites.length > 0) {
+
+                filteredSites.sort((a, b) => {
+                    // 优先级排序：
+                    // 1. Extension/Spawn/Tower（最重要）
+                    // 2. Container/Storage
+                    // 3. Road（优先级最低）
+
+                    const getPriority = (site: ConstructionSite) => {
+                        switch (site.structureType) {
+                            case STRUCTURE_SPAWN:
+                            case STRUCTURE_EXTENSION:
+                            case STRUCTURE_TOWER:
+                                return 1;
+                            case STRUCTURE_CONTAINER:
+                            case STRUCTURE_STORAGE:
+                                return 2;
+                            case STRUCTURE_ROAD:
+                                return 3;
+                            default:
+                                return 4; // 其他建筑
+                        }
+                    };
+
+                    // 比较优先级：优先级数字越小越靠前
+                    const pA = getPriority(a);
+                    const pB = getPriority(b);
+
+                    if (pA !== pB) {
+                        return pA - pB;
+                    }
+
+                    // 优先级相同时，选择距离最近的
+                    return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
+                });
+
+                targetSite = filteredSites[0];
+
+            } else {
+                // 3. 如果 filteredSites 为空，说明所有工地都是接近完成的道路
+                // 此时应该让 Builder 去完成这些道路，避免闲置
+                // 因此，回退到从所有工地中选择距离最近的一个
+                targetSite = creep.pos.findClosestByPath(constructionSites);
+            }
 
             if (targetSite) {
                 // 尝试建造
