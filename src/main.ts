@@ -1,5 +1,11 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 
+import havestRole from "roles/harvester";
+
+import upgradeRole from "roles/upgrader";
+
+import builderRole from "roles/builder";
+
 declare global {
   /*
     Example types, expand on these or remove them and add your own.
@@ -33,6 +39,32 @@ declare global {
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
+  const base = Game.spawns['obsidianlyg'];
+
+  // 创建
+
+  havestRole.create(); // 采集者
+
+  upgradeRole.create(); // 升级者
+
+  builderRole.create(); // 建筑师
+
+
+  // 执行任务
+   for (let name in Game.creeps) {
+      let creep = Game.creeps[name];
+      if (creep.memory.role == 'harvester') {
+        havestRole.run(creep);
+      }
+
+      if (creep.memory.role == 'upgrader') {
+        upgradeRole.run(creep);
+      }
+
+      if (creep.memory.role == 'builder') {
+        builderRole.run(creep);
+      }
+   }
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
