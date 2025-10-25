@@ -92,7 +92,7 @@ let builderRole = {
                     creep.say('暂歇');
                     // 移动到 Controller 附近等待新工地
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller, { reusePath: 50 });
+                        creep.moveTo(controller, { reusePath: 50, ignoreCreeps: true });
                     }
                 }
             }

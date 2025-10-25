@@ -124,7 +124,8 @@ let harvestRole = {
                         // 使用优化后的 moveTo
                         creep.moveTo(controller, {
                             visualizePathStyle: { stroke: '#66ccff' },
-                            reusePath: 50
+                            reusePath: 50,
+                            ignoreCreeps: true
                         });
                     }
                 }
