@@ -29,6 +29,16 @@ declare global {
     role: string;
     room: string;
     working: boolean;
+    stuck?: StuckMemory;
+    _move?: any;
+  }
+
+  // 定义 stuck 属性的结构
+  interface StuckMemory {
+      // 存储 Creep 所在的位置，用于比较
+      pos: RoomPosition;
+      // 存储 Creep 停留在该位置的时间点（Game.time）
+      time: number;
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")

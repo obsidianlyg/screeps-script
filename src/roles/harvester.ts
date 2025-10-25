@@ -103,13 +103,12 @@ let harvestRole = {
             }
 
             if (target) {
-                // 优先将能量转移给 Spawn，或者任何需要能量的结构（如 Extension, Tower）
-                // 这里我们只关注 Spawn
-                const transferResult = creep.transfer(base, RESOURCE_ENERGY);
+                // 向找到的目标结构转移能量
+                const transferResult = creep.transfer(target, RESOURCE_ENERGY);
 
                 if (transferResult === ERR_NOT_IN_RANGE) {
                     // 使用 ignoreCreeps: true 避免卡住其他 Creep
-                    creep.moveTo(base, {
+                    creep.moveTo(target, {
                         visualizePathStyle: { stroke: '#ffffff' },
                         reusePath: 50, // 路径缓存，减少 CPU 消耗
                         ignoreCreeps: true // 避免路径被其他 Creep 堵塞（解决卡住问题的一部分）
@@ -133,8 +132,28 @@ let harvestRole = {
         } else {
             // 任务：采集能量
 
-            // 更智能地选择目标：寻找最近的非空能量源
-            const targetSource = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            // 更智能地选择目标：寻找负载较低的能量源
+            const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+            let targetSource = null;
+
+            if (sources.length > 0) {
+                // 选择当前creep数量最少的能量源
+                sources.sort((a, b) => {
+                    const creepsNearA = creep.room.lookForAtArea(LOOK_CREEPS,
+                        Math.max(0, a.pos.y - 1), Math.max(0, a.pos.x - 1),
+                        Math.min(49, a.pos.y + 1), Math.min(49, a.pos.x + 1), true)
+                        .length;
+                    const creepsNearB = creep.room.lookForAtArea(LOOK_CREEPS,
+                        Math.max(0, b.pos.y - 1), Math.max(0, b.pos.x - 1),
+                        Math.min(49, b.pos.y + 1), Math.min(49, b.pos.x + 1), true)
+                        .length;
+
+                    if (creepsNearA !== creepsNearB) return creepsNearA - creepsNearB;
+                    return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
+                });
+
+                targetSource = sources[0];
+            }
 
             if (targetSource) {
                 const harvestResult = creep.harvest(targetSource);
