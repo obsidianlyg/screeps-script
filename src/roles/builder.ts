@@ -98,7 +98,6 @@ let builderRole = {
                     // 移动到工地
                     creep.moveTo(targetSite, {
                         visualizePathStyle: { stroke: '#00ff2aff' },
-                        reusePath: 50,
                         ignoreCreeps: true
                     });
                 }
@@ -128,7 +127,6 @@ let builderRole = {
                 if (creep.withdraw(energySource, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(energySource, {
                         visualizePathStyle: { stroke: '#ffaa00' },
-                        reusePath: 50,
                         ignoreCreeps: true
                     });
                 }
@@ -139,7 +137,6 @@ let builderRole = {
                     if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(source, {
                             visualizePathStyle: { stroke: '#ffaa00' },
-                            reusePath: 50,
                             ignoreCreeps: true
                         });
                     }

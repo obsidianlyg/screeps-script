@@ -73,7 +73,6 @@ let upgradeRole = {
                 if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(controller, {
                         visualizePathStyle: { stroke: '#66ccff' },
-                        reusePath: 50,
                         ignoreCreeps: true
                     });
                 }
@@ -88,7 +87,6 @@ let upgradeRole = {
                 if (creep.harvest(targetSource) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targetSource, {
                         visualizePathStyle: { stroke: '#ffaa00' },
-                        reusePath: 50,
                         ignoreCreeps: true
                     });
                 }

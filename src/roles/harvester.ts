@@ -110,7 +110,6 @@ let harvestRole = {
                     // 使用 ignoreCreeps: true 避免卡住其他 Creep
                     creep.moveTo(target, {
                         visualizePathStyle: { stroke: '#ffffff' },
-                        reusePath: 50, // 路径缓存，减少 CPU 消耗
                         ignoreCreeps: true // 避免路径被其他 Creep 堵塞（解决卡住问题的一部分）
                     });
                 }
@@ -123,7 +122,6 @@ let harvestRole = {
                         // 使用优化后的 moveTo
                         creep.moveTo(controller, {
                             visualizePathStyle: { stroke: '#66ccff' },
-                            reusePath: 50,
                             ignoreCreeps: true
                         });
                     }
@@ -162,7 +160,6 @@ let harvestRole = {
                     // 使用同样优化的 moveTo，确保路径选择更优
                     creep.moveTo(targetSource, {
                         visualizePathStyle: { stroke: '#ffaa00' },
-                        reusePath: 50,
                         ignoreCreeps: true
                     });
                 }
