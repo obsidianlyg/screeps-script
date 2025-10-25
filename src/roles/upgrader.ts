@@ -30,7 +30,8 @@ let upgradeRole = {
                 memory: {
                     role: 'upgrader',
                     room: "",
-                    working: false
+                    working: false,
+                    assignedSource: null  // 添加资源源分配字段
                 }
             });
 
@@ -49,6 +50,11 @@ let upgradeRole = {
     },
     // 移除不使用的参数 'creeps'
     run: function(creep:Creep) {
+        // 初始化内存字段（为了兼容旧的creep）
+        if (creep.memory.assignedSource === undefined) {
+            creep.memory.assignedSource = null;
+        }
+
         // --- 状态切换逻辑 ---
 
         // 内存中通常用 'upgrading' 状态来区分
@@ -71,13 +77,15 @@ let upgradeRole = {
             const controller = creep.room.controller;
 
             if (controller) { // 安全检查
-                // 使用非空断言 ! 必须确保 controller 存在
-                if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+                const upgradeResult = creep.upgradeController(controller);
+                if (upgradeResult == ERR_NOT_IN_RANGE) {
                     creep.moveTo(controller, {
                         visualizePathStyle: { stroke: '#66ccff' },
-                        ignoreCreeps: true
+                        ignoreCreeps: false  // 改为false，避免路径冲突
                     });
                 }
+            } else {
+                console.log(`Upgrader ${creep.name}: 找不到controller！`);
             }
         } else {
             // 任务：采集能量

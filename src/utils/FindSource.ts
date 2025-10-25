@@ -24,12 +24,12 @@ function findSource(creep:Creep) {
             let bestSource: Source | null = null;
             let minAssignedCreeps = Infinity;
 
-            // 查找所有 Harvester 的内存，计算每个 Source 的“排队”人数
+            // 查找所有 screep 的内存，计算每个 Source 的“排队”人数
 
             // 1. 【预先统计】计算每个 Source ID 的分配人数
             const assignmentCounts: Record<Id<Source>, number> = {} as Record<Id<Source>, number>;
 
-            // 初始化计数器，并统计当前所有 Harvester 的分配情况
+            // 初始化计数器，并统计当前所有 screep 的分配情况
             for (const creepName in Game.creeps) {
                 const currentCreep = Game.creeps[creepName];
 
@@ -110,10 +110,10 @@ function findSource(creep:Creep) {
                             isWalkable = false;
                             break;
                         }
-                        // 注意：这里我们不检查 Creep，因为 Creep 可以 move 到 Creep 所在的位置
+                        // 检查地形和结构，但不检查creep（creep检查在后面进行）
                     }
 
-                    // 如果该位置可通行，并且周围没有其他 Creep 已经占据该位置（这比较复杂，我们先用简单的 lookAt 筛选）
+                    // 如果该位置可通行且没有creep，加入可选位置列表
                     if (isWalkable) {
                         openHarvestPositions.push(pos);
                     }
@@ -125,14 +125,28 @@ function findSource(creep:Creep) {
             if (openHarvestPositions.length > 0) {
                 // 2. 在所有空闲位置中，选择一个离当前 Creep 最近的作为寻路目标
                 // 使用 findClosestByPath/Range 找到距离当前 creep 最近的那个空闲位置
-                targetPosition = creep.pos.findClosestByPath(openHarvestPositions);
+                targetPosition = creep.pos.findClosestByRange(openHarvestPositions);
             }
 
             if (targetPosition) {
                 creep.moveTo(targetPosition, {
                     visualizePathStyle: { stroke: '#ffaa00' },
-                    ignoreCreeps: true
+                    ignoreCreeps: false,
+                    maxOps: 1000,         // 增加路径搜索复杂度
+                    heuristicWeight: 1.2  // 调整启发式权重
                 });
+            } else {
+                console.log(`${creep.name}: 没有找到可用的资源位置！空闲位置数量=${openHarvestPositions.length}`);
+                // 对于upgrader，如果没有找到精确位置，直接移动到资源源
+                if (targetSource) {
+                    console.log(`${creep.name}: 直接移动到资源源`);
+                    creep.moveTo(targetSource, {
+                        visualizePathStyle: { stroke: '#ffaa00' },
+                        ignoreCreeps: false,
+                        maxOps: 1000,
+                        heuristicWeight: 1.2
+                    });
+                }
             }
 
 

@@ -42,6 +42,16 @@ declare global {
       time: number;
   }
 
+  interface PathFinderOpts {
+    // ... 其他属性，如 ignoreCreeps, maxOps, reusePath ...
+
+    // 显式添加 costCallback 属性
+    costCallback?: (roomName: string, costMatrix: CostMatrix) => CostMatrix | void;
+
+    // 显式添加 roomCallback 属性
+    roomCallback?: ((roomName: string) => CostMatrix | boolean) | undefined;
+}
+
   // Syntax for adding proprties to `global` (ex "global.log")
   namespace NodeJS {
     interface Global {
