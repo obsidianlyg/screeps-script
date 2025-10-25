@@ -48,6 +48,14 @@ function findSource(creep:Creep) {
                 // 获取当前 Source 的分配人数（如果没分配，则为 0）
                 const assignedCount = assignmentCounts[source.id] || 0;
 
+                // 特殊资源 - 特殊人数限制
+                 console.log("source.id: " + source.id);
+                 console.log("assignedCount: " + assignedCount);
+                if (source.id == 'fd3d07720e87b83' && assignedCount >= 2) {
+                    console.log("特殊能量源人数已达上限， 2")
+                    continue;
+                }
+
                 // 优先级 1：分配人数少的优先
                 if (assignedCount < minAssignedCreeps) {
                     minAssignedCreeps = assignedCount;
@@ -84,7 +92,6 @@ function findSource(creep:Creep) {
             }
 
             if (targetSource) {
-                console.log(`${creep.name}: 直接移动到资源源`);
                 creep.moveTo(targetSource, {
                     visualizePathStyle: { stroke: '#ffaa00' },
                     ignoreCreeps: false,
