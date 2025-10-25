@@ -6,6 +6,10 @@ import upgradeRole from "roles/upgrader";
 
 import builderRole from "roles/builder";
 
+import {
+    MAIN_SPAWN_NAME
+} from "constant/constants";
+
 declare global {
   /*
     Example types, expand on these or remove them and add your own.
@@ -39,7 +43,14 @@ declare global {
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
-  const base = Game.spawns['obsidianlyg'];
+  // Automatically delete memory of missing creeps
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
+      delete Memory.creeps[name];
+    }
+  }
+
+  const base = Game.spawns[MAIN_SPAWN_NAME];
 
   // 创建
 
@@ -66,10 +77,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
    }
 
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
-    }
-  }
 });
