@@ -6,7 +6,7 @@ import upgradeRole from "roles/upgrader";
 
 import builderRole from "roles/builder";
 
-import { getSpawnAndExtensionEnergy } from "utils/GetEnergy";
+import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
     MAIN_SPAWN_NAME
@@ -81,19 +81,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // 创建
 
-  havestRole.create(); // 采集者
+    // 巨型采集者
+  havestRole.createBig();
+  upgradeRole.createBig();
+  builderRole.createBig();
 
-  upgradeRole.create(); // 升级者
+  // havestRole.create(); // 采集者
 
-  builderRole.create(); // 建筑师
+  // upgradeRole.create(); // 升级者
 
-  // 获取能量 - 使用spawn所在房间
-  const spawn = Game.spawns[MAIN_SPAWN_NAME];
-  if (spawn && spawn.room) {
-    console.log("energy:" + getSpawnAndExtensionEnergy(spawn.room));
-  } else {
-    console.log("警告：无法找到spawn或spawn房间");
-  }
+  // builderRole.create(); // 建筑师
+
+
 
 
   // 执行任务

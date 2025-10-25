@@ -1,10 +1,15 @@
 import {
     HARVESTER_BODY,
+    BIG_COMMON_BODY,
     HARVESTER_COUNT,
+    BIG_HARVEST_COUNT,
+    BIG_ENERYG,
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
 import findSource from "utils/FindSource";
+
+import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 let harvestRole = {
     create: function() {
@@ -39,6 +44,46 @@ let harvestRole = {
                 console.log(`成功将 ${newName} 加入到生成队列。`);
             } else if (result === ERR_NOT_ENOUGH_ENERGY) {
                 console.log(`能量不足，无法生成 Harvester。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
+    createBig: function() {
+        const base = Game.spawns[MAIN_SPAWN_NAME];
+        if (!base) {
+            console.log("找不到 Spawn: " + MAIN_SPAWN_NAME);
+            return;
+        }
+
+        // 统计当前 big_harvester 数量
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester');
+
+        // 如果数量不足
+        if (harvesters.length < BIG_HARVEST_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
+
+            // 生成一个唯一的名字
+            const newName = 'harvester' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 harvester: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
+                memory: {
+                    role: 'harvester',
+                    room: "",
+                    working: false
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 big_harvester。`);
             } else if (result === ERR_BUSY) {
                 // 正常情况，Spawn 正在忙碌
                 // console.log(`Spawn 正在忙碌。`);

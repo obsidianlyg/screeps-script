@@ -1,10 +1,15 @@
 import {
     UPGRADER_BODY,
     UPGRADER_COUNT,
+    BIG_COMMON_BODY,
+    BIG_UPGRADE_COUNT,
+    BIG_ENERYG,
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
 import findSource from "utils/FindSource";
+
+import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 let upgradeRole = {
     create: function() {
@@ -27,6 +32,47 @@ let upgradeRole = {
 
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(UPGRADER_BODY, newName, {
+                memory: {
+                    role: 'upgrader',
+                    room: "",
+                    working: false,
+                    assignedSource: null  // 添加资源源分配字段
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 upgrader。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
+    createBig: function() {
+        const base = Game.spawns[MAIN_SPAWN_NAME];
+        if (!base) {
+            console.log("找不到 Spawn: " + MAIN_SPAWN_NAME);
+            return;
+        }
+
+        // 统计当前 upgrader 数量
+        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader');
+
+        // 如果数量不足
+        if (upgraders.length < BIG_UPGRADE_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
+
+            // 生成一个唯一的名字
+            const newName = 'Upgrader' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 Upgrader: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
                     role: 'upgrader',
                     room: "",

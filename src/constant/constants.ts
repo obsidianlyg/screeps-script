@@ -8,7 +8,7 @@ export const HARVESTER_BODY: BodyPartConstant[] = [WORK, CARRY, MOVE];
 /**
  * Harvester 的目标数量
  */
-export const HARVESTER_COUNT: number = 2;
+export const HARVESTER_COUNT: number = 0;
 
 /**
  * 基础 Upgrader 的身体部件配置
@@ -28,7 +28,18 @@ export const BUILDER_BODY: BodyPartConstant[] = [WORK, CARRY, MOVE];
 /**
  * builder 的目标数量
  */
-export const BUILDER_COUNT: number = 2;
+export const BUILDER_COUNT: number = 1;
+
+/**
+ * bigscreep
+ */
+
+// 大型运输工具
+export const BIG_COMMON_BODY: BodyPartConstant[] = [WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE];
+export const BIG_HARVEST_COUNT: number = 2;
+export const BIG_BUILDER_COUNT: number = 1;
+export const BIG_UPGRADE_COUNT: number = 2;
+export const BIG_ENERYG: number = 550;
 
 // 您也可以在这里定义其他全局常量，比如 Spawn 的名称
 export const MAIN_SPAWN_NAME: string = 'obsidianlyg';

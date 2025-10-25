@@ -1,10 +1,15 @@
 import {
     BUILDER_BODY,
+    BIG_COMMON_BODY,
     BUILDER_COUNT,
+    BIG_BUILDER_COUNT,
+    BIG_ENERYG,
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
 import findSource from "utils/FindSource";
+
+import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 let builderRole = {
     create: function() {
@@ -27,6 +32,46 @@ let builderRole = {
 
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(BUILDER_BODY, newName, {
+                memory: {
+                    role: 'builder',
+                    room: "",
+                    working: false
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 builder。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
+    createBig: function() {
+        const base = Game.spawns[MAIN_SPAWN_NAME];
+        if (!base) {
+            console.log("找不到 Spawn: " + MAIN_SPAWN_NAME);
+            return;
+        }
+
+        // 统计当前 Harvester 数量
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder');
+
+        // 如果数量不足
+        if (builders.length < BIG_BUILDER_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
+
+            // 生成一个唯一的名字
+            const newName = 'Builder' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 Builder: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
                     role: 'builder',
                     room: "",
@@ -101,12 +146,12 @@ let builderRole = {
                     const ROAD_PROGRESS_SKIP_THRESHOLD = 0.90; // 90%
                     // return site.progress / site.progressTotal < ROAD_PROGRESS_SKIP_THRESHOLD;
                     // TODO 临时设置小路优先
-                    return site.progressTotal < 1000
+                    return site.progressTotal < 2000
                 }
 
                 // extention开关
                 if (site.structureType === STRUCTURE_EXTENSION) {
-                    return false;
+                    return true;
                 }
 
                 // 先不给container修
@@ -197,7 +242,10 @@ let builderRole = {
                                 s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
             });
 
-            if (energySource) {
+            // 是否直接从容器中拿去资源
+            let enable = false;
+
+            if (energySource && enable) {
                 // 从 Container/Storage 取能量
                 if (creep.withdraw(energySource, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(energySource, {

@@ -1,3 +1,7 @@
+import {
+    MAIN_SPAWN_NAME
+} from "constant/constants";
+
 /**
  * 计算房间内所有 Spawn 和 Extension 中当前存储的总能量。
  * @param room 要检查的 Room 对象。
@@ -29,4 +33,16 @@ function getSpawnAndExtensionEnergy(room: Room | undefined): number {
     return totalEnergy;
 }
 
-export {getSpawnAndExtensionEnergy};
+function getDefaultEneryg() {
+    const spawn = Game.spawns[MAIN_SPAWN_NAME];
+    let totalEnergy = 0;
+    if (spawn && spawn.room) {
+    totalEnergy = getSpawnAndExtensionEnergy(spawn.room);
+    console.log("totalEnergy:" + totalEnergy);
+    } else {
+    console.log("警告：无法找到spawn或spawn房间");
+    }
+    return totalEnergy;
+}
+
+export {getSpawnAndExtensionEnergy, getDefaultEneryg};
