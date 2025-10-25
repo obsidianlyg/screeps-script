@@ -4,6 +4,8 @@ import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
+import findSource from "utils/FindSource";
+
 let upgradeRole = {
     create: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
@@ -80,17 +82,8 @@ let upgradeRole = {
         } else {
             // 任务：采集能量
 
-            // Upgrader 也可以从 Container/Storage 取能量，这里简化为从 Source 采集
-            const targetSource = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-
-            if (targetSource) {
-                if (creep.harvest(targetSource) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targetSource, {
-                        visualizePathStyle: { stroke: '#ffaa00' },
-                        ignoreCreeps: true
-                    });
-                }
-            }
+            // 去资源点采集
+            findSource(creep)
         }
     }
 };

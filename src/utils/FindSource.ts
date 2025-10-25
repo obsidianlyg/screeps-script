@@ -1,50 +1,72 @@
 function findSource(creep:Creep) {
-    // 如果没有 Container/Storage，就 fallback 到从 Source 采集
-
     let targetSource: Source | null = null;
+    let assignmentChanged = false; // 用于跟踪是否重新分配了目标
 
-    // A. 尝试从内存中获取已分配的 Source ID
-    const assignedSourceId = creep.memory.assignedSource;
+    // --- 1. 尝试从内存中恢复目标 ---
+    if (creep.memory.assignedSource) {
+        // 尝试获取对象，并检查其能量是否耗尽
+        targetSource = Game.getObjectById(creep.memory.assignedSource);
 
-    if (assignedSourceId) {
-        // 尝试通过 ID 获取 Source 对象
-        targetSource = Game.getObjectById(assignedSourceId);
+        // 如果目标不存在（被摧毁）或当前能量为 0，则清除分配
+        if (!targetSource || targetSource.energy === 0) {
+            creep.memory.assignedSource = null;
+            targetSource = null;
+        }
     }
 
-    // B. 如果没有 targetSource (ID不存在或对象无效)，则重新查找和分配
-    if (!targetSource || targetSource.energy === 0) { // 检查 source.energy === 0 避免空跑
 
-        // 清除旧的分配
-        creep.memory.assignedSource = null;
-
-        // 查找房间内所有活跃的 Source
+    // --- 2. 如果没有有效目标（需要重新分配） ---
+    if (!targetSource) {
         const sources = creep.room.find(FIND_SOURCES_ACTIVE);
 
         if (sources.length > 0) {
-            // 使用 findClosestByPath 查找最近的 Source（只在需要重新分配时运行）
-            const closestSource = creep.pos.findClosestByPath(sources);
 
-            if (closestSource) {
-                // 分配并存储到内存
-                creep.memory.assignedSource = closestSource.id;
-                targetSource = closestSource;
+            // 预先计算所有 Source 的占用数量（修正了之前的高 CPU 问题）
+            const sourcesWithCreepCount = sources.map(source => {
+                const creepsNearSource = creep.room.lookForAtArea(LOOK_CREEPS,
+                    Math.max(0, source.pos.y - 1), Math.max(0, source.pos.x - 1),
+                    Math.min(49, source.pos.y + 1), Math.min(49, source.pos.x + 1), true)
+                    .length;
+                return { source: source, creepsNear: creepsNearSource };
+            });
+
+            // 排序：占用最少优先，数量相同则距离最近优先
+            sourcesWithCreepCount.sort((a, b) => {
+                if (a.creepsNear !== b.creepsNear) {
+                    return a.creepsNear - b.creepsNear;
+                }
+                return creep.pos.getRangeTo(a.source) - creep.pos.getRangeTo(b.source);
+            });
+
+            // 分配最优 Source
+            const bestSourceWrapper = sourcesWithCreepCount[0];
+            if (bestSourceWrapper) {
+                targetSource = bestSourceWrapper.source;
+                creep.memory.assignedSource = targetSource.id; // <--- 目标锁定！
+                assignmentChanged = true;
             }
         }
-        // 注意：更高级的优化是根据 Harvester 数量来分配，避免扎堆（见第三点）
     }
 
-    // C. 执行采集任务
+
+    // --- 3. 执行任务 ---
     if (targetSource) {
+
+        // 如果是刚刚分配的目标，或者 Creep 还没到达，则移动
         if (creep.harvest(targetSource) === ERR_NOT_IN_RANGE) {
-            // 使用您原有的优化寻路参数
+
+            // 如果是新分配的目标，清除路径缓存（_move），确保它能找到新路径
+            if (assignmentChanged) {
+                delete creep.memory._move;
+            }
+
             creep.moveTo(targetSource, {
                 visualizePathStyle: { stroke: '#ffaa00' },
                 ignoreCreeps: true,
-                reusePath: 50 // 强烈建议添加路径缓存
+                reusePath: 50
             });
         }
     }
-    // 否则，如果没有可采集的 Source（例如都已枯竭），Creep 会闲置。
 }
 
 export default findSource;

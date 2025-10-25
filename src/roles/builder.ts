@@ -206,6 +206,7 @@ let builderRole = {
                     });
                 }
             } else {
+                // 去资源点采集
                 findSource(creep)
             }
         }
