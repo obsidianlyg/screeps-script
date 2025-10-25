@@ -4,6 +4,8 @@ import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
+import findSource from "utils/FindSource";
+
 let builderRole = {
     create: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
@@ -107,6 +109,11 @@ let builderRole = {
                     return false;
                 }
 
+                // 先不给container修
+                if (site.structureType === STRUCTURE_CONTAINER) {
+                    return false;
+                }
+
                 // 其他所有建筑（Spawn, Extension, Container 等）都保留，不进行进度筛选
                 return true;
             });
@@ -199,16 +206,7 @@ let builderRole = {
                     });
                 }
             } else {
-                // 如果没有 Container/Storage，就 fallback 到从 Source 采集
-                const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                if (source) {
-                    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {
-                            visualizePathStyle: { stroke: '#ffaa00' },
-                            ignoreCreeps: true
-                        });
-                    }
-                }
+                findSource(creep)
             }
         }
     }

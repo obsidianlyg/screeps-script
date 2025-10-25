@@ -31,6 +31,7 @@ declare global {
     working: boolean;
     stuck?: StuckMemory;
     _move?: any;
+    assignedSource?: Id<Source> | null;
   }
 
   // 定义 stuck 属性的结构
