@@ -32,6 +32,10 @@ declare global {
     stuck?: StuckMemory;
     _move?: any;
     assignedSource?: Id<Source> | null;
+    lastPosition?: {
+      pos: RoomPosition;
+      stuckTime: number;
+    } | null;
   }
 
   // 定义 stuck 属性的结构

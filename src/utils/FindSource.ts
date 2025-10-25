@@ -83,72 +83,15 @@ function findSource(creep:Creep) {
                 delete creep.memory._move;
             }
 
-            // 1. 查找 Source 周围一格的所有空闲格子 (RoomPosition)
-            const openHarvestPositions = [];
-
-            // 遍历 Source 周围 8 个格子
-            for (let dx = -1; dx <= 1; dx++) {
-                for (let dy = -1; dy <= 1; dy++) {
-                    if (dx === 0 && dy === 0) continue; // 跳过 Source 自己的位置
-
-                    const pos = new RoomPosition(targetSource.pos.x + dx, targetSource.pos.y + dy, targetSource.pos.roomName);
-
-                    // 检查该位置是否可以站立
-                    // lookForAt 查找该位置上的结构和 Creep
-                    const look = pos.look();
-
-                    let isWalkable = true;
-                    for (const item of look) {
-                        // 如果有墙壁或不可穿越的结构 (除了可穿过的 Road, Rampart)
-                        if (item.type === LOOK_TERRAIN && item.terrain === 'wall') {
-                            isWalkable = false;
-                            break;
-                        }
-                        if (item.type === LOOK_STRUCTURES &&
-                            item.structure &&
-                            (item.structure.structureType !== STRUCTURE_ROAD && item.structure.structureType !== STRUCTURE_RAMPART)) {
-                            isWalkable = false;
-                            break;
-                        }
-                        // 检查地形和结构，但不检查creep（creep检查在后面进行）
-                    }
-
-                    // 如果该位置可通行且没有creep，加入可选位置列表
-                    if (isWalkable) {
-                        openHarvestPositions.push(pos);
-                    }
-                }
-            }
-
-            let targetPosition: RoomPosition | null = null;
-
-            if (openHarvestPositions.length > 0) {
-                // 2. 在所有空闲位置中，选择一个离当前 Creep 最近的作为寻路目标
-                // 使用 findClosestByPath/Range 找到距离当前 creep 最近的那个空闲位置
-                targetPosition = creep.pos.findClosestByRange(openHarvestPositions);
-            }
-
-            if (targetPosition) {
-                creep.moveTo(targetPosition, {
+            if (targetSource) {
+                console.log(`${creep.name}: 直接移动到资源源`);
+                creep.moveTo(targetSource, {
                     visualizePathStyle: { stroke: '#ffaa00' },
                     ignoreCreeps: false,
-                    maxOps: 1000,         // 增加路径搜索复杂度
-                    heuristicWeight: 1.2  // 调整启发式权重
+                    maxOps: 1000,
+                    heuristicWeight: 1.2
                 });
-            } else {
-                console.log(`${creep.name}: 没有找到可用的资源位置！空闲位置数量=${openHarvestPositions.length}`);
-                // 对于upgrader，如果没有找到精确位置，直接移动到资源源
-                if (targetSource) {
-                    console.log(`${creep.name}: 直接移动到资源源`);
-                    creep.moveTo(targetSource, {
-                        visualizePathStyle: { stroke: '#ffaa00' },
-                        ignoreCreeps: false,
-                        maxOps: 1000,
-                        heuristicWeight: 1.2
-                    });
-                }
             }
-
 
         }
     }
