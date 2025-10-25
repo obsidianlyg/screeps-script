@@ -59,7 +59,7 @@ let builderRole = {
 
         // 2. 如果 Creep 满了，切换到 "建造" 状态
         // 我们只要求它至少带一些能量，但让它装满会更有效率
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && !creep.memory.working) {
+        if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0 && !creep.memory.working) {
             creep.memory.working = true;
             creep.say('🛠️ 建造');
         }
