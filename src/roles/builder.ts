@@ -104,9 +104,9 @@ let builderRole = {
                     return site.progressTotal < 1000
                 }
 
-                // 先不给extention修
+                // extention开关
                 if (site.structureType === STRUCTURE_EXTENSION) {
-                    return false;
+                    return true;
                 }
 
                 // 先不给container修
