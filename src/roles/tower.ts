@@ -37,12 +37,17 @@ let towerRole = {
                 continue;
             }
 
-            // 优先级 4：修复道路
+            // 优先级 4：存储桶
+            if (runTowerRepairStorage(tower)) {
+                continue;
+            }
+
+            // 优先级 5：修复道路
             if (runTowerRepair(tower)) {
                 continue;
             }
 
-            // 优先级 5：修城墙
+            // 优先级 6：修城墙
             if (runTowerRepairWall(tower)) {
                 continue;
             }
@@ -320,6 +325,46 @@ function runTowerRepairContainer(tower: StructureTower): boolean {
     }
 
     return false; // 没有找到需要修复的 Container
+}
+
+/**
+ * Tower 的 Storage 专用修复逻辑：查找并修复耐久度低于阈值的 Storage。
+ * @param tower 要操作的 Tower 对象。
+ * @returns boolean 修复任务是否正在进行。
+ */
+function runTowerRepairStorage(tower: StructureTower): boolean {
+
+    // 1. 检查 Tower 是否有足够的能量
+    // Storage 非常重要，即使能量不多，也可以考虑修复，但这里我们保留检查。
+    if (tower.store.getUsedCapacity(RESOURCE_ENERGY) < 100) {
+        return false;
+    }
+
+    // 2. 定义修复阈值：Storage 具有很高的 hitsMax (例如 1,000,000)。
+    // 我们设定一个较高的百分比阈值，以确保 Storage 始终接近满血。
+    const STORAGE_REPAIR_THRESHOLD = 0.95; // 低于 95% 的耐久度就开始修复
+
+    // 3. 查找需要修复的 Storage
+    // 由于一个房间通常只有一个 Storage，我们可以直接查找并检查它。
+    const storage = tower.room.storage; // 直接获取房间的 Storage 对象
+
+    if (storage) {
+        // 检查 Storage 是否需要修复
+        if (storage.hits < storage.hitsMax * STORAGE_REPAIR_THRESHOLD) {
+
+            // 4. 执行修复
+            const repairResult = tower.repair(storage);
+
+            if (repairResult === OK) {
+                return true; // 正在修复
+            } else {
+                // 如果失败（例如：目标超出 Tower 范围，虽然 Storage 通常在中心）
+                // console.log(`Tower ${tower.id} 修复 Storage 失败，错误码: ${repairResult}`);
+            }
+        }
+    }
+
+    return false; // 没有找到需要修复的 Storage
 }
 
 
