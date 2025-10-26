@@ -230,16 +230,44 @@ let builderRole = {
                 targetSite = creep.pos.findClosestByPath(constructionSites);
             }
 
-            if (targetSite) {
+            let actualTargetSite: ConstructionSite | null = null;
+
+            // 检查是否有缓存的目标工地且仍然存在
+            if (creep.memory.targetConstructionSiteId) {
+                const cachedTarget = Game.getObjectById(creep.memory.targetConstructionSiteId);
+                if (cachedTarget && cachedTarget instanceof ConstructionSite) {
+                    actualTargetSite = cachedTarget;
+                    console.log(`${creep.name}: 使用缓存的目标工地 ${actualTargetSite.id}`);
+                }
+            }
+
+            // 如果没有有效的缓存目标，使用新选择的目标
+            if (!actualTargetSite && targetSite) {
+                actualTargetSite = targetSite;
+                creep.memory.targetConstructionSiteId = targetSite.id;
+                console.log(`${creep.name}: 使用新选择的目标工地 ${targetSite.id}`);
+            }
+
+            if (actualTargetSite) {
                 // 尝试建造
-                const buildResult = creep.build(targetSite);
+                const buildResult = creep.build(actualTargetSite);
 
                 if (buildResult === ERR_NOT_IN_RANGE) {
-                    // 移动到工地
-                    creep.moveTo(targetSite, {
+                    // 移动到工地，使用长路径缓存避免重复计算
+                    creep.moveTo(actualTargetSite, {
                         visualizePathStyle: { stroke: '#00ff2aff' },
-                        ignoreCreeps: true
+                        ignoreCreeps: true,
+                        reusePath: 50,  // 长缓存，50tick内复用路径
+                        serializeMemory: true  // 避免内存序列化问题
                     });
+                } else if (buildResult === OK) {
+                    console.log(`${creep.name}: 正在建造工地 ${actualTargetSite.id}`);
+                    // 建造中，继续工作
+                } else {
+                    console.log(`${creep.name}: 建造失败，错误码=${buildResult}`);
+                    // 建造失败，清除缓存重新选择
+                    creep.memory.targetConstructionSiteId = null;
+                    delete creep.memory._move;
                 }
             } else {
                 // 如果没有工地可建，让 Builder 闲置下来做点别的事情 (比如升级 Controller)
@@ -253,9 +281,11 @@ let builderRole = {
                 const controller = creep.room.controller;
                 if (controller) {
                     creep.say('暂歇');
+                    creep.memory.targetConstructionSiteId = null;  // 清除建造目标
+                    delete creep.memory._move;  // 清除路径缓存
                     // 移动到 Controller 附近等待新工地
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller, { reusePath: 50, ignoreCreeps: true });
+                        creep.moveTo(controller, { reusePath: 30, ignoreCreeps: true });
                     }
                 }
             }

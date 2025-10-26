@@ -41,6 +41,7 @@ declare global {
     assignedSource?: Id<Source> | null;
     targetRepairId?: Id<StructureRoad | StructureWall> | null;
     targetContainerId?: Id<StructureContainer | StructureStorage> | null;
+    targetConstructionSiteId?: Id<ConstructionSite> | null;
     lastPosition?: {
       pos: RoomPosition;
       stuckTime: number;
