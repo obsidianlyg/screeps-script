@@ -263,6 +263,8 @@ let builderRole = {
                 } else if (buildResult === OK) {
                     console.log(`${creep.name}: 正在建造工地 ${actualTargetSite.id}`);
                     // 建造中，继续工作
+                    // 移除目标缓存 - 下次根据优先级再查
+                    creep.memory.targetConstructionSiteId = null;
                 } else {
                     console.log(`${creep.name}: 建造失败，错误码=${buildResult}`);
                     // 建造失败，清除缓存重新选择

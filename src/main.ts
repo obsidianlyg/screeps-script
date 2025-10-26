@@ -94,6 +94,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   upgradeRole.createBig();
   builderRole.createBig();
 
+  // TODO 做一个基础搬运工，做优先级容错
+
   // havestRole.create(); // 采集者
 
   // upgradeRole.create(); // 升级者
