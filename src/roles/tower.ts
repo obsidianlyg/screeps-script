@@ -22,6 +22,16 @@ let towerRole = {
             // Tower 的优先任务通常是 1. 攻击 2. 治疗 3. 修复
             // 这里假设攻击和治疗逻辑已先于此运行。
 
+            // 找目标并攻击
+            if (runTowerAttack(tower)) {
+                continue;
+            }
+
+            // 治疗
+            if (runTowerHeal(tower)) {
+                continue;
+            }
+
             // 如果没有攻击或治疗任务，则尝试修复 Road
             if (runTowerRepair(tower)) {
                 // 如果 Tower 正在修复，则跳过其他任务
@@ -32,6 +42,80 @@ let towerRole = {
         }
     }
 };
+
+/**
+ * Tower 的攻击逻辑：查找并攻击敌对目标。
+ * @param tower 要操作的 Tower 对象。
+ * @returns boolean 攻击是否正在进行。
+ */
+function runTowerAttack(tower: StructureTower): boolean {
+
+    // 1. 查找敌对 Creep（非我方或非友方）
+    const hostileCreeps = tower.room.find(FIND_HOSTILE_CREEPS);
+
+    if (hostileCreeps.length > 0) {
+        // 2. 选择攻击目标
+        // 策略：选择距离最近的敌对 Creep（通常最快到达房间）
+        const target = tower.pos.findClosestByRange(hostileCreeps);
+
+        if (target) {
+            const attackResult = tower.attack(target);
+
+            if (attackResult === OK) {
+                return true; // 正在攻击
+            } else {
+                // 如果攻击失败（例如：能量不足，错误码 ERR_NOT_ENOUGH_ENERGY）
+                // 可以选择在这里添加日志，但通常 Tower 能量不足会由其他系统处理
+            }
+        }
+    }
+
+    return false; // 没有找到攻击目标
+}
+
+/**
+ * Tower 的治疗逻辑：查找并治疗受损的友方 Creep。
+ * @param tower 要操作的 Tower 对象。
+ * @returns boolean 治疗是否正在进行。
+ */
+function runTowerHeal(tower: StructureTower): boolean {
+
+    // 1. 查找所有我方 Creep
+    const myCreeps = tower.room.find(FIND_MY_CREEPS);
+
+    // 2. 筛选出需要治疗的目标
+    const damagedCreeps = myCreeps.filter(creep => {
+        // 筛选条件：当前生命值低于最大生命值
+        return creep.hits < creep.hitsMax;
+    });
+
+    if (damagedCreeps.length > 0) {
+        // 3. 选择治疗目标
+        // 策略：选择生命值百分比最低（最危险）的 Creep 进行治疗
+        let lowestHitsRatio = 1;
+        let targetCreep: Creep | null = null;
+
+        for (const creep of damagedCreeps) {
+            const hitsRatio = creep.hits / creep.hitsMax;
+
+            if (hitsRatio < lowestHitsRatio) {
+                lowestHitsRatio = hitsRatio;
+                targetCreep = creep;
+            }
+        }
+
+        // 4. 执行治疗
+        if (targetCreep) {
+            const healResult = tower.heal(targetCreep);
+
+            if (healResult === OK) {
+                return true; // 正在治疗
+            }
+        }
+    }
+
+    return false; // 没有找到需要治疗的目标
+}
 
 /**
  * Tower 的主要维修逻辑。
