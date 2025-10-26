@@ -133,7 +133,7 @@ function runTowerRepair(tower: StructureTower): boolean {
     // 2. 定义修复的优先级和阈值
     // Road 的修复优先级通常低于 Rampart 或 Wall。
     // 我们设定一个较低的 Road 修复阈值（例如低于 50% 或 10,000 hits）来节省能量。
-    const ROAD_REPAIR_THRESHOLD = 0.5; // 低于最大耐久度的 50% 就开始修
+    const ROAD_REPAIR_THRESHOLD = 0.7; // 低于最大耐久度的 50% 就开始修
 
     // 3. 查找需要修复的 Road
     const damagedRoads = tower.room.find(FIND_STRUCTURES, {

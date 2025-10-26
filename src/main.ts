@@ -27,6 +27,9 @@ declare global {
   interface Memory {
     uuid: number;
     log: any;
+    containerEnergy?: {
+      [containerId: string]: number;
+    };
   }
 
   interface CreepMemory {
@@ -37,6 +40,7 @@ declare global {
     _move?: any;
     assignedSource?: Id<Source> | null;
     targetRepairId?: Id<StructureRoad> | null;
+    targetContainerId?: Id<StructureContainer | StructureStorage> | null;
     lastPosition?: {
       pos: RoomPosition;
       stuckTime: number;

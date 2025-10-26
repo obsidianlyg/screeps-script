@@ -12,6 +12,8 @@ import {
 
 import findSource from "utils/FindSource";
 
+import findContainer from "utils/FindContainer";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import { repairRoads } from "utils/repair";
@@ -172,9 +174,9 @@ let builderRole = {
                     return true;
                 }
 
-                // 先不给container修
+                // container开关
                 if (site.structureType === STRUCTURE_CONTAINER) {
-                    return false;
+                    return true;
                 }
 
                 // 其他所有建筑（Spawn, Extension, Container 等）都保留，不进行进度筛选
@@ -261,24 +263,11 @@ let builderRole = {
             // 任务：取回能量
 
             // 优先从 Container/Storage 取能量，效率比采 Source 高
-            // 查找最近的 Storage/Container
-            const energySource = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (s) => (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) &&
-                                s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
-            });
+            const containerFound = findContainer(creep);
 
-            // 是否直接从容器中拿去资源
-            let enable = false;
-
-            if (energySource && enable) {
-                // 从 Container/Storage 取能量
-                if (creep.withdraw(energySource, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(energySource, {
-                        visualizePathStyle: { stroke: '#ffaa00' },
-                        ignoreCreeps: true
-                    });
-                }
-            } else {
+            // 如果没有找到可用的Container，就 fallback 到从 Source 采集
+            if (!containerFound) {
+                console.log(`${creep.name}: 没有可用container，转而去采集资源源`);
                 // 去资源点采集
                 findSource(creep)
             }
