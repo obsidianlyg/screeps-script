@@ -22,17 +22,17 @@ let towerRole = {
             // Tower 的优先任务通常是 1. 攻击 2. 治疗 3. 修复
             // 这里假设攻击和治疗逻辑已先于此运行。
 
-            // 找目标并攻击
+            // 优先级 1：攻击是最高优先级
             if (runTowerAttack(tower)) {
                 continue;
             }
 
-            // 治疗
+            // 优先级 2：治疗友方 Creep
             if (runTowerHeal(tower)) {
                 continue;
             }
 
-            // 如果没有攻击或治疗任务，则尝试修复 Road
+            // 优先级 3：修复结构
             if (runTowerRepair(tower)) {
                 // 如果 Tower 正在修复，则跳过其他任务
                 continue;
