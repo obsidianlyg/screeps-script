@@ -67,4 +67,4 @@ function repairRoads(creep: Creep): boolean {
     return false; // 没有找到需要修复的 Road
 }
 
-export default repairRoads;
+export {repairRoads};

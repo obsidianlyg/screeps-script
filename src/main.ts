@@ -8,6 +8,8 @@ import builderRole from "roles/builder";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
+import towerRole from "roles/tower";
+
 import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
@@ -93,6 +95,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // builderRole.create(); // 建筑师
 
+  // tower 执行
+  towerRole.run(base.room);
 
 
 

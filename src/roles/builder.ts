@@ -12,7 +12,7 @@ import findSource from "utils/FindSource";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
-import repairRoads from "utils/repair";
+import { repairRoads } from "utils/repair";
 
 let builderRole = {
     create: function() {
@@ -134,8 +134,12 @@ let builderRole = {
         // --- 执行任务逻辑 ---
 
         if (creep.memory.working) {
+
             // 先修路
-            repairRoads(creep);
+            let reapirRoadBool = repairRoads(creep);
+            if (reapirRoadBool) {
+                return;
+            }
 
             // 任务：建造工地
 
