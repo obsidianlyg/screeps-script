@@ -32,7 +32,13 @@ let towerRole = {
                 continue;
             }
 
-            // 优先级 3：修复结构
+            // 优先级 3：修城墙
+            if (runTowerRepairWall(tower)) {
+                // 如果 Tower 正在修复，则跳过其他任务
+                continue;
+            }
+
+            // 优先级 4：修复道路
             if (runTowerRepair(tower)) {
                 // 如果 Tower 正在修复，则跳过其他任务
                 continue;
@@ -176,6 +182,86 @@ function runTowerRepair(tower: StructureTower): boolean {
     }
 
     return false; // 没有找到需要修复的 Road
+}
+
+/**
+ * Tower 的通用结构修复逻辑。
+ * 优先级：修复受损比例最低的结构（最紧急）
+ * @param tower 要操作的 Tower 对象。
+ * @returns boolean 修复任务是否正在进行。
+ */
+function runTowerRepairWall(tower: StructureTower): boolean {
+
+    // 1. 检查 Tower 是否有足够的能量
+    // 修复需要能量。如果能量太低，应优先保留用于攻击。
+    if (tower.store.getUsedCapacity(RESOURCE_ENERGY) < 300) {
+        return false;
+    }
+
+    // 2. 定义修复目标耐久度（针对 Walls/Ramparts）
+    // 只有低于这个值才会被 Tower 视为修复目标。
+    const DEFENSE_TARGET_HITS = 50000; // 目标修复到 50,000 hits
+
+    // 3. 查找所有需要修复的结构
+    const structuresToRepair = tower.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            // 筛选条件：
+
+            // A. Wall 或 Rampart 必须低于目标 hits
+            if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
+                return structure.hits < DEFENSE_TARGET_HITS;
+            }
+
+            // B. Roads 必须低于 hitsMax 的 50%
+            if (structure.structureType === STRUCTURE_ROAD) {
+                 return structure.hits < structure.hitsMax * 0.5;
+            }
+
+            // C. 其他结构（如 Container, Link 等）必须低于满耐久度的 90%
+            if (structure.hits < structure.hitsMax * 0.9) {
+                // 排除墙壁、道路和控制器 (避免 Tower 误修)
+                return structure.structureType !== STRUCTURE_CONTROLLER;
+            }
+
+            return false;
+        }
+    });
+
+    if (structuresToRepair.length > 0) {
+
+        // 4. 选择最佳修复目标
+
+        // 策略：选择耐久度百分比最低的结构（最紧急）进行修复
+        let target: AnyStructure | null = null;
+        let lowestHitsRatio = 1;
+
+        for (const structure of structuresToRepair) {
+            let hitsRatio;
+
+            // 对于 Walls/Ramparts，我们只关心它是否低于 DEFENSE_TARGET_HITS
+            if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
+                hitsRatio = structure.hits / DEFENSE_TARGET_HITS; // 使用目标值作为分母
+            } else {
+                hitsRatio = structure.hits / structure.hitsMax; // 使用 Max hits 作为分母
+            }
+
+            if (hitsRatio < lowestHitsRatio) {
+                lowestHitsRatio = hitsRatio;
+                target = structure;
+            }
+        }
+
+        // 5. 执行修复
+        if (target) {
+            const repairResult = tower.repair(target);
+
+            if (repairResult === OK) {
+                return true; // 正在修复
+            }
+        }
+    }
+
+    return false; // 没有找到需要修复的目标
 }
 
 
