@@ -60,20 +60,20 @@ let harvestRole = {
         }
 
         // 统计当前 big_harvester 数量
-        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester');
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'big_harvester');
 
         // 如果数量不足
         if (harvesters.length < BIG_HARVEST_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
 
             // 生成一个唯一的名字
-            const newName = 'harvester' + Game.time; // 使用当前时间戳创建唯一名字
+            const newName = 'big_harvester' + Game.time; // 使用当前时间戳创建唯一名字
 
-            console.log(`尝试生成新的 harvester: ${newName}`);
+            console.log(`尝试生成新的 big_harvester: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
-                    role: 'harvester',
+                    role: 'big_harvester',
                     room: "",
                     working: false
                 }

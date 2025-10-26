@@ -1,6 +1,7 @@
 import {
     BUILDER_BODY,
     BIG_COMMON_BODY,
+    BIG_COMMON_BODY_TMP,
     BUILDER_COUNT,
     BIG_BUILDER_COUNT,
     BIG_ENERYG,
@@ -10,6 +11,8 @@ import {
 import findSource from "utils/FindSource";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
+
+import repairRoads from "utils/repair";
 
 let builderRole = {
     create: function() {
@@ -60,20 +63,20 @@ let builderRole = {
         }
 
         // 统计当前 Harvester 数量
-        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder');
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'big_builder');
 
         // 如果数量不足
         if (builders.length < BIG_BUILDER_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
 
             // 生成一个唯一的名字
-            const newName = 'Builder' + Game.time; // 使用当前时间戳创建唯一名字
+            const newName = 'big_builder' + Game.time; // 使用当前时间戳创建唯一名字
 
-            console.log(`尝试生成新的 Builder: ${newName}`);
+            console.log(`尝试生成新的 big_builder: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
-                    role: 'builder',
+                    role: 'big_builder',
                     room: "",
                     working: false
                 }
@@ -131,6 +134,9 @@ let builderRole = {
         // --- 执行任务逻辑 ---
 
         if (creep.memory.working) {
+            // 先修路
+            repairRoads(creep);
+
             // 任务：建造工地
 
             // 1. 查找目标工地

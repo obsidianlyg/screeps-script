@@ -34,6 +34,7 @@ declare global {
     stuck?: StuckMemory;
     _move?: any;
     assignedSource?: Id<Source> | null;
+    targetRepairId?: Id<StructureRoad> | null;
     lastPosition?: {
       pos: RoomPosition;
       stuckTime: number;
@@ -98,15 +99,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 执行任务
    for (let name in Game.creeps) {
       let creep = Game.creeps[name];
-      if (creep.memory.role == 'harvester') {
+      if (creep.memory.role == 'harvester' || creep.memory.role == 'big_harvester') {
         havestRole.run(creep);
       }
 
-      if (creep.memory.role == 'upgrader') {
+      if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader') {
         upgradeRole.run(creep);
       }
 
-      if (creep.memory.role == 'builder') {
+      if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder') {
         builderRole.run(creep);
       }
    }

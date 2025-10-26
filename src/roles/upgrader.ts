@@ -61,20 +61,20 @@ let upgradeRole = {
         }
 
         // 统计当前 upgrader 数量
-        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader');
+        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'big_upgrader');
 
         // 如果数量不足
         if (upgraders.length < BIG_UPGRADE_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
 
             // 生成一个唯一的名字
-            const newName = 'Upgrader' + Game.time; // 使用当前时间戳创建唯一名字
+            const newName = 'big_upgrader' + Game.time; // 使用当前时间戳创建唯一名字
 
-            console.log(`尝试生成新的 Upgrader: ${newName}`);
+            console.log(`尝试生成新的 big_upgrader: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
-                    role: 'upgrader',
+                    role: 'big_upgrader',
                     room: "",
                     working: false,
                     assignedSource: null  // 添加资源源分配字段
