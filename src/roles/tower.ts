@@ -32,17 +32,21 @@ let towerRole = {
                 continue;
             }
 
-            // 优先级 3：修城墙
-            if (runTowerRepairWall(tower)) {
-                // 如果 Tower 正在修复，则跳过其他任务
+            // 优先级 3：容器
+            if (runTowerRepairContainer(tower)) {
                 continue;
             }
 
             // 优先级 4：修复道路
             if (runTowerRepair(tower)) {
-                // 如果 Tower 正在修复，则跳过其他任务
                 continue;
             }
+
+            // 优先级 5：修城墙
+            if (runTowerRepairWall(tower)) {
+                continue;
+            }
+
 
             // ... 其他 Tower 任务（例如：修复 Rampart, 修复墙壁, 填充能量等）
         }
@@ -262,6 +266,60 @@ function runTowerRepairWall(tower: StructureTower): boolean {
     }
 
     return false; // 没有找到需要修复的目标
+}
+
+/**
+ * Tower 的 Container 专用修复逻辑：查找并修复耐久度低于阈值的 Container。
+ * @param tower 要操作的 Tower 对象。
+ * @returns boolean 修复任务是否正在进行。
+ */
+function runTowerRepairContainer(tower: StructureTower): boolean {
+
+    // 1. 检查 Tower 是否有足够的能量（可以根据需要调整这个阈值）
+    if (tower.store.getUsedCapacity(RESOURCE_ENERGY) < 100) {
+        return false;
+    }
+
+    // 2. 定义修复阈值：当 Container 的耐久度低于最大耐久度的 80% 时开始修复
+    const CONTAINER_REPAIR_THRESHOLD = 0.8;
+
+    // 3. 查找所有需要修复的 Container
+    const damagedContainers = tower.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return structure.structureType === STRUCTURE_CONTAINER &&
+                   structure.hits < structure.hitsMax * CONTAINER_REPAIR_THRESHOLD;
+        }
+    }) as StructureContainer[]; // 明确断言类型
+
+    if (damagedContainers.length > 0) {
+
+        // 4. 选择最佳修复目标
+
+        // 策略：选择耐久度百分比最低（最紧急）的 Container
+        let targetContainer: StructureContainer | null = null;
+        let lowestHitsRatio = 1;
+
+        for (const container of damagedContainers) {
+            const hitsRatio = container.hits / container.hitsMax;
+
+            if (hitsRatio < lowestHitsRatio) {
+                lowestHitsRatio = hitsRatio;
+                targetContainer = container;
+            }
+        }
+
+        // 5. 执行修复
+        if (targetContainer) {
+            const repairResult = tower.repair(targetContainer);
+
+            if (repairResult === OK) {
+                return true; // 正在修复
+            }
+            // 失败（如能量不足，但已在开头检查）则会返回 false
+        }
+    }
+
+    return false; // 没有找到需要修复的 Container
 }
 
 
