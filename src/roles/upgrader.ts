@@ -4,6 +4,8 @@ import {
     BIG_COMMON_BODY,
     BIG_UPGRADE_COUNT,
     BIG_ENERYG,
+    HARVESTER_COUNT,
+    BIG_HARVEST_COUNT,
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
@@ -16,6 +18,12 @@ let upgradeRole = {
         const base = Game.spawns[MAIN_SPAWN_NAME];
         if (!base) {
             console.log("找不到 Spawn: " + MAIN_SPAWN_NAME);
+            return;
+        }
+
+        // 加入限制以采集者为主，采集者数量不足优先创建采集者
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester');
+        if (harvesters.length < HARVESTER_COUNT) {
             return;
         }
 
@@ -57,6 +65,12 @@ let upgradeRole = {
         const base = Game.spawns[MAIN_SPAWN_NAME];
         if (!base) {
             console.log("找不到 Spawn: " + MAIN_SPAWN_NAME);
+            return;
+        }
+
+        // 加入限制以采集者为主，采集者数量不足优先创建采集者
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'big_harvester');
+        if (harvesters.length < BIG_HARVEST_COUNT) {
             return;
         }
 
