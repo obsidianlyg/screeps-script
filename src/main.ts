@@ -39,7 +39,7 @@ declare global {
     stuck?: StuckMemory;
     _move?: any;
     assignedSource?: Id<Source> | null;
-    targetRepairId?: Id<StructureRoad> | null;
+    targetRepairId?: Id<StructureRoad | StructureWall> | null;
     targetContainerId?: Id<StructureContainer | StructureStorage> | null;
     lastPosition?: {
       pos: RoomPosition;

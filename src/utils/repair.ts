@@ -67,4 +67,86 @@ function repairRoads(creep: Creep): boolean {
     return false; // 没有找到需要修复的 Road
 }
 
+/**
+ * Builder/Repairer 角色专用的墙壁修复方法。
+ * 查找耐久度低于指定阈值的墙壁进行修复。
+ * @param creep 当前执行任务的 Creep 对象。
+ * @returns boolean 修复任务是否正在进行。
+ */
+function repairWalls(creep: Creep): boolean {
+
+    // 1. 定义 Wall 的目标耐久度
+    // 注意：Wall 和 Rampart 的 hitsMax 非常高。通常只修复到自定义目标耐久度即可。
+    // R.C.L 8 时 Wall 的最大耐久度为 3亿。这里设置一个合理的中间值作为目标。
+    const WALL_TARGET_HITS = 50000; // 修复到 50,000 耐久度
+
+    // 2. 检查能量：如果能量不足，则无法修复
+    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+        return false;
+    }
+
+    // 3. 查找需要修复的 Wall
+    let wallToRepair: StructureWall | null = null;
+
+    // 优先从内存中恢复目标
+    if (creep.memory.targetRepairId) {
+        const potentialTarget = Game.getObjectById(creep.memory.targetRepairId);
+
+        // 检查目标是否是 Wall 且需要修复
+        if (potentialTarget && 'structureType' in potentialTarget &&
+            potentialTarget.structureType === STRUCTURE_WALL &&
+            'hits' in potentialTarget &&
+            potentialTarget.hits < WALL_TARGET_HITS) {
+            wallToRepair = potentialTarget as StructureWall;
+        } else {
+            // 清除无效目标
+            creep.memory.targetRepairId = null;
+        }
+    }
+
+    // 4. 如果内存中没有有效目标，则查找新的目标
+    if (!wallToRepair) {
+        const damagedWalls = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                // 筛选条件：必须是 Wall 且耐久度低于目标值
+                return structure.structureType === STRUCTURE_WALL &&
+                       structure.hits < WALL_TARGET_HITS;
+            }
+        }) as StructureWall[];
+
+        if (damagedWalls.length > 0) {
+            // 策略：选择耐久度最低的 Wall（最紧急的）
+            // 注意：findClosestByPath 可能会选择一个路径最短但耐久度较高的，
+            //       我们应该优先修复最薄弱的。
+
+            let weakestWall = damagedWalls[0];
+            for (let i = 1; i < damagedWalls.length; i++) {
+                if (damagedWalls[i].hits < weakestWall.hits) {
+                    weakestWall = damagedWalls[i];
+                }
+            }
+
+            wallToRepair = weakestWall;
+            creep.memory.targetRepairId = wallToRepair.id; // 存储到内存
+        }
+    }
+
+    // 5. 执行修复或移动
+    if (wallToRepair) {
+        const repairResult = creep.repair(wallToRepair);
+
+        if (repairResult === ERR_NOT_IN_RANGE) {
+            // 移动到 Wall 旁边
+            creep.moveTo(wallToRepair, { visualizePathStyle: { stroke: '#ff0000' } });
+        }
+
+        // 如果 repairResult === OK，Creep 会继续修复
+        // 如果 repairResult === ERR_NOT_ENOUGH_ENERGY，应该在任务切换逻辑中处理
+
+        return true; // 正在执行修复 Wall 任务
+    }
+
+    return false; // 没有找到需要修复的 Wall
+}
+
 export {repairRoads};
