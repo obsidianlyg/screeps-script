@@ -135,12 +135,6 @@ let builderRole = {
 
         if (creep.memory.working) {
 
-            // 先修路
-            let reapirRoadBool = repairRoads(creep);
-            if (reapirRoadBool) {
-                return;
-            }
-
             // 任务：建造工地
 
             // 1. 查找目标工地
@@ -233,6 +227,13 @@ let builderRole = {
                 }
             } else {
                 // 如果没有工地可建，让 Builder 闲置下来做点别的事情 (比如升级 Controller)
+
+                // 修路
+                let reapirRoadBool = repairRoads(creep);
+                if (reapirRoadBool) {
+                    return;
+                }
+                // 升级
                 const controller = creep.room.controller;
                 if (controller) {
                     creep.say('暂歇');
