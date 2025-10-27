@@ -11,6 +11,8 @@ import {
 
 import findSource from "utils/FindSource";
 
+import findContainer from "utils/FindContainer";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 let upgradeRole = {
@@ -152,8 +154,15 @@ let upgradeRole = {
         } else {
             // 任务：采集能量
 
-            // 去资源点采集
-            findSource(creep)
+            // 优先从 Container/Storage 取能量，效率比采 Source 高
+            const containerFound = findContainer(creep);
+
+            // 如果没有找到可用的Container，就 fallback 到从 Source 采集
+            if (!containerFound) {
+                console.log(`${creep.name}: 没有可用container，转而去采集资源源`);
+                // 去资源点采集
+                findSource(creep)
+            }
         }
     }
 };

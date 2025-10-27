@@ -279,10 +279,10 @@ let builderRole = {
                 if (reapirRoadBool) {
                     return;
                 }
-                // 升级
+                // 升级 小建造者可以干，大型建造者容易把资源耗光
                 const controller = creep.room.controller;
-                if (controller) {
-                    creep.say('暂歇');
+                if (controller && creep.memory.role === 'builder') {
+                    creep.say('up');
                     creep.memory.targetConstructionSiteId = null;  // 清除建造目标
                     delete creep.memory._move;  // 清除路径缓存
                     // 移动到 Controller 附近等待新工地

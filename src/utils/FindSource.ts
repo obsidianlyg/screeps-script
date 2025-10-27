@@ -52,8 +52,8 @@ function findSource(creep:Creep) {
                 console.log("source.id: " + source.id);
                 console.log("assignedCount: " + assignedCount);
                 let isHarvester = creep.memory.role == "big_harvester" || creep.memory.role == "harvester"
-                if (source.id == 'fd3d07720e87b83' && (assignedCount >= 2 || !isHarvester)) {
-                    console.log("特殊能量源人数已达上限， 2")
+                if (source.id == 'fd3d07720e87b83' && (assignedCount >= 3 || !isHarvester)) {
+                    console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
