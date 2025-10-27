@@ -1,3 +1,5 @@
+import { handleStuckDetection } from "./StuckDetection";
+
 function findSource(creep:Creep) {
     let targetSource: Source | null = null;
     let assignmentChanged = false; // 用于跟踪是否重新分配了目标
@@ -90,14 +92,21 @@ function findSource(creep:Creep) {
             // 如果是新分配的目标，清除路径缓存（_move），确保它能找到新路径
             if (assignmentChanged) {
                 delete creep.memory._move;
+                delete creep.memory.lastPosition; // 重置卡住检测
+            }
+
+            // 使用通用卡住检测方法
+            if (handleStuckDetection(creep, targetSource, 'lastPosition', 5)) {
+                return; // 绕路移动结束本轮
             }
 
             if (targetSource) {
                 creep.moveTo(targetSource, {
                     visualizePathStyle: { stroke: '#ffaa00' },
-                    ignoreCreeps: false,
+                    ignoreCreeps: false,  // 正常情况下不穿过creep
                     maxOps: 1000,
-                    heuristicWeight: 1.2
+                    heuristicWeight: 1.2,
+                    range: 1
                 });
             } else {
                 console.log(`${creep.name}: 找不到资源源`)

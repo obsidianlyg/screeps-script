@@ -12,6 +12,7 @@ import {
 import findSource from "utils/FindSource";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
+import { handleStuckDetection } from "utils/StuckDetection";
 
 let harvestRole = {
     create: function() {
@@ -156,6 +157,11 @@ let harvestRole = {
                 const transferResult = creep.transfer(target, RESOURCE_ENERGY);
 
                 if (transferResult === ERR_NOT_IN_RANGE) {
+                    // 添加卡住检测机制
+                    if (handleStuckDetection(creep, target, 'harvesterTransferPosition', 5)) {
+                        return; // 绕路移动结束本轮
+                    }
+
                     // 使用 ignoreCreeps: true 避免卡住其他 Creep
                     creep.moveTo(target, {
                         visualizePathStyle: { stroke: '#ffffff' },
@@ -168,6 +174,11 @@ let harvestRole = {
                 if (controller) {
                     creep.say('⬆️ 升级');
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+                        // 添加卡住检测机制
+                        if (handleStuckDetection(creep, controller, 'harvesterUpgradePosition', 5)) {
+                            return; // 绕路移动结束本轮
+                        }
+
                         // 使用优化后的 moveTo
                         creep.moveTo(controller, {
                             visualizePathStyle: { stroke: '#66ccff' },

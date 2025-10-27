@@ -17,6 +17,7 @@ import findContainer from "utils/FindContainer";
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import { repairRoads } from "utils/repair";
+import { handleStuckDetection } from "utils/StuckDetection";
 
 let builderRole = {
     create: function() {
@@ -114,21 +115,7 @@ let builderRole = {
 // 移除不使用的参数 'creeps'
     run: function(creep:Creep) {
         // --- 卡住检测和恢复 ---
-        if (!creep.memory.stuck) {
-            creep.memory.stuck = { pos: creep.pos, time: Game.time };
-        } else {
-            // 如果creep在同一个位置停留太久，清除路径缓存
-            if (creep.pos.isEqualTo(creep.memory.stuck.pos) &&
-                Game.time - creep.memory.stuck.time > 10) {
-                creep.memory.stuck = { pos: creep.pos, time: Game.time };
-                // 强制重新计算路径
-                delete creep.memory._move;
-                creep.say('🔄 重新寻路');
-            } else if (!creep.pos.isEqualTo(creep.memory.stuck.pos)) {
-                // 位置变化，更新记录
-                creep.memory.stuck = { pos: creep.pos, time: Game.time };
-            }
-        }
+        handleStuckDetection(creep, creep.pos, 'stuck', 10);
 
         // --- 状态切换逻辑：通过内存管理 Creep 状态 ---
 

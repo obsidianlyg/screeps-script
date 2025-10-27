@@ -44,8 +44,13 @@ declare global {
     targetConstructionSiteId?: Id<ConstructionSite> | null;
     lastPosition?: {
       pos: RoomPosition;
-      stuckTime: number;
+      time: number;
     } | null;
+    containerLastPosition?: {
+      pos: RoomPosition;
+      time: number;
+    } | null;
+    [key: string]: any; // 允许动态属性访问
   }
 
   // 定义 stuck 属性的结构

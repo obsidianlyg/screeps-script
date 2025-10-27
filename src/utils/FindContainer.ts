@@ -1,3 +1,5 @@
+import { handleStuckDetection } from "./StuckDetection";
+
 // 辅助函数：检查container是否有足够的实际能量给当前creep（考虑预扣缓存）
 function hasEnoughActualEnergy(container: StructureContainer | StructureStorage, creepNeeded: number): boolean {
     const containerId = container.id;
@@ -114,9 +116,16 @@ function handleExistingContainer(creep: Creep, container: StructureContainer | S
         // 释放预扣的能量
         releaseContainerEnergy(container.id, creep.store.getCapacity(RESOURCE_ENERGY));
         creep.memory.targetContainerId = null; // 清除目标
+        delete creep.memory.containerLastPosition; // 清除卡住检测
         return true;
     } else if (withdrawResult === ERR_NOT_IN_RANGE) {
         console.log(`${creep.name}: 移动到container ${container.id}，当前距离=${distance}`);
+
+        // 使用通用卡住检测方法
+        if (handleStuckDetection(creep, container, 'containerLastPosition', 5)) {
+            return true; // 绕路移动结束本轮
+        }
+
         const moveResult = creep.moveTo(container, {
             visualizePathStyle: { stroke: '#00ff00' },
             ignoreCreeps: false,
@@ -133,6 +142,7 @@ function handleExistingContainer(creep: Creep, container: StructureContainer | S
     } else {
         console.log(`${creep.name}: 从container取能量失败，结果=${withdrawResult}`);
         creep.memory.targetContainerId = null; // 清除目标
+        delete creep.memory.containerLastPosition; // 清除卡住检测
 
         // 如果取能量失败，释放预扣的能量
         releaseContainerEnergy(container.id, creep.store.getFreeCapacity(RESOURCE_ENERGY));
