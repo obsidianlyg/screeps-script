@@ -12,6 +12,7 @@ import {
 import findSource from "utils/FindSource";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
+import { findEnergyTargetsByPriority, getPriorityMode, PriorityMode } from "utils/PrioritySystem";
 
 let harvestRole = {
     create: function() {
@@ -113,64 +114,28 @@ let harvestRole = {
         // --- 执行任务逻辑 ---
 
         if (creep.memory.working) {
-            // 任务：将能量转移到 Spawn
-            const base = Game.spawns[MAIN_SPAWN_NAME];
+            // 使用优先级系统进行能量转移
+            const isWartime = false; // 可以根据需要调整战时状态
+            const mode = getPriorityMode(creep.memory.role, isWartime);
+            const targets = findEnergyTargetsByPriority(creep, mode, true); // 包含 storage
 
-            // 1. 查找所有需要能量的关键结构 (Spawn, Extension, Tower)
-            const criticalTargets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    // 筛选出所有有空闲容量的 Spawn, Extension 和 Tower
-                    return (structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_TOWER) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                }
-            });
-
-            let target: AnyStructure | null = null;
-            // 2. 如果存在需要能量的关键结构，则进行优先级排序
-            if (criticalTargets.length > 0) {
-
-                // (可选) 优先级排序：Spawn > Extension > Tower
-                // 确保 Creep 总是去最高优先级的最近目标
-                criticalTargets.sort((a, b) => {
-                    let priorityA = a.structureType === STRUCTURE_SPAWN ? 1 : a.structureType === STRUCTURE_EXTENSION ? 2 : 3;
-                    let priorityB = b.structureType === STRUCTURE_SPAWN ? 1 : b.structureType === STRUCTURE_EXTENSION ? 2 : 3;
-                    if (priorityA !== priorityB) return priorityA - priorityB;
-                    return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
-                });
-
-                target = criticalTargets[0];
-
-            } else {
-                // 3. 如果所有关键结构都满了，查找 Container 或 Storage (长期存储)
-                target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                    filter: (s) => (s.structureType === STRUCTURE_CONTAINER ||
-                                    s.structureType === STRUCTURE_STORAGE) &&
-                                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                });
-            }
-
-            if (target) {
-                // 向找到的目标结构转移能量
-                const transferResult = creep.transfer(target, RESOURCE_ENERGY);
+            if (targets.length > 0) {
+                const bestTarget = targets[0];
+                const transferResult = creep.transfer(bestTarget.structure, RESOURCE_ENERGY);
 
                 if (transferResult === ERR_NOT_IN_RANGE) {
-
-                    // 使用 ignoreCreeps: true 避免卡住其他 Creep
-                    creep.moveTo(target, {
+                    creep.moveTo(bestTarget.structure, {
                         visualizePathStyle: { stroke: '#ffffff' },
-                        ignoreCreeps: true // 避免路径被其他 Creep 堵塞（解决卡住问题的一部分）
+                        ignoreCreeps: false,
+                        range: 0
                     });
                 }
             } else {
-                // 5. 备用逻辑：所有需要能量的建筑都满了！去升级控制器。
+                // 备用逻辑：所有需要能量的建筑都满了！去升级控制器。
                 const controller = creep.room.controller;
                 if (controller) {
                     creep.say('⬆️ 升级');
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-
-                        // 使用优化后的 moveTo
                         creep.moveTo(controller, {
                             visualizePathStyle: { stroke: '#66ccff' },
                             ignoreCreeps: true
