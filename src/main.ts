@@ -6,6 +6,8 @@ import upgradeRole from "roles/upgrader";
 
 import builderRole from "roles/builder";
 
+import transporterRole from "roles/transporter";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import towerRole from "roles/tower";
@@ -50,6 +52,19 @@ declare global {
       pos: RoomPosition;
       time: number;
     } | null;
+    // 搬运任务相关
+    transportTarget?: Id<AnyStructure> | null;
+    isGettingEnergy?: boolean;
+    transportWithdrawPosition?: {
+      pos: RoomPosition;
+      time: number;
+    } | null;
+    transportTransferPosition?: {
+      pos: RoomPosition;
+      time: number;
+    } | null;
+    // 能量源类型缓存
+    energySourceType?: 'container' | 'storage' | null;
     [key: string]: any; // 允许动态属性访问
   }
 
@@ -99,18 +114,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   upgradeRole.createBig();
   builderRole.createBig();
 
-  // TODO 做一个基础搬运工，做优先级容错
-
-  // havestRole.create(); // 采集者
-
-  // upgradeRole.create(); // 升级者
-
-  // builderRole.create(); // 建筑师
+  // 基础搬运工
+  // havestRole.create();
+  // upgradeRole.create();
+  // builderRole.create();
+  transporterRole.create();
 
   // tower 执行
   towerRole.run(base.room);
-
-
 
   // 执行任务
    for (let name in Game.creeps) {
@@ -125,6 +136,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder') {
         builderRole.run(creep);
+      }
+
+      if (creep.memory.role == 'transporter') {
+        transporterRole.run(creep);
       }
    }
 

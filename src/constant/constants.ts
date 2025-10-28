@@ -31,6 +31,16 @@ export const BUILDER_BODY: BodyPartConstant[] = [WORK, CARRY, MOVE];
 export const BUILDER_COUNT: number = 1;
 
 /**
+ * 基础 Transporter 的身体部件配置
+ */
+export const CARRIER_BODY: BodyPartConstant[] = [WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE];
+
+/**
+ * Transporter 的目标数量
+ */
+export const TRANSPORTER_COUNT: number = 1;
+
+/**
  * bigscreep
  */
 

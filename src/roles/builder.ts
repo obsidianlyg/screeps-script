@@ -262,10 +262,10 @@ let builderRole = {
                 // 如果没有工地可建，让 Builder 闲置下来做点别的事情 (比如升级 Controller)
 
                 // 执行能量搬运任务
-                // const isWorking = transportEnergy(creep);
-                // if (isWorking) {
-                //     return;
-                // }
+                const isWorking = transportEnergy(creep);
+                if (isWorking) {
+                    return;
+                }
 
                 // 修路
                 let reapirRoadBool = repairRoads(creep);
