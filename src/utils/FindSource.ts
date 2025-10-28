@@ -95,11 +95,6 @@ function findSource(creep:Creep) {
                 delete creep.memory.lastPosition; // 重置卡住检测
             }
 
-            // 使用通用卡住检测方法
-            if (handleStuckDetection(creep, targetSource, 'lastPosition', 5)) {
-                return; // 绕路移动结束本轮
-            }
-
             if (targetSource) {
                 creep.moveTo(targetSource, {
                     visualizePathStyle: { stroke: '#ffaa00' },

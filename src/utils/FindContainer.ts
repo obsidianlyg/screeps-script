@@ -111,6 +111,9 @@ function handleExistingContainer(creep: Creep, container: StructureContainer | S
     // 尝试取能量
     const withdrawResult = creep.withdraw(container, RESOURCE_ENERGY);
 
+    // 放入状态
+    creep.memory.energySourceType = container.structureType
+
     if (withdrawResult === OK) {
         console.log(`${creep.name}: 成功从container获取能量`);
         // 释放预扣的能量
@@ -120,11 +123,6 @@ function handleExistingContainer(creep: Creep, container: StructureContainer | S
         return true;
     } else if (withdrawResult === ERR_NOT_IN_RANGE) {
         console.log(`${creep.name}: 移动到container ${container.id}，当前距离=${distance}`);
-
-        // 使用通用卡住检测方法
-        if (handleStuckDetection(creep, container, 'containerLastPosition', 5)) {
-            return true; // 绕路移动结束本轮
-        }
 
         const moveResult = creep.moveTo(container, {
             visualizePathStyle: { stroke: '#00ff00' },
