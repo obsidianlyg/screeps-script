@@ -146,6 +146,38 @@ let harvestRole = {
         } else {
             // 任务：采集能量
 
+            // 检查当前分配的资源源是否枯竭
+            if (creep.memory.assignedSource) {
+                const assignedSource = Game.getObjectById(creep.memory.assignedSource);
+                if (assignedSource && assignedSource.energy === 0) {
+                    // 资源源枯竭，立即寻找附近容器存放能量
+                    const nearbyContainer = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                        filter: (structure) => {
+                            return structure.structureType === STRUCTURE_CONTAINER &&
+                                   structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                        }
+                    }) as StructureContainer | null;
+
+                    if (nearbyContainer && creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+                        // 向附近容器转移能量
+                        const transferResult = creep.transfer(nearbyContainer, RESOURCE_ENERGY);
+                        if (transferResult === OK) {
+                            console.log(`${creep.name}: 资源枯竭，成功向附近容器存放能量`);
+                            // 如果能量全部存放完，重新寻找资源源
+                            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+                                creep.memory.assignedSource = null; // 清除分配，重新找资源源
+                            }
+                        } else if (transferResult === ERR_NOT_IN_RANGE) {
+                            creep.moveTo(nearbyContainer, {
+                                visualizePathStyle: { stroke: '#ff9900' }, // 橙色表示紧急存放
+                                ignoreCreeps: false
+                            });
+                            return; // 先处理紧急存放，不采集
+                        }
+                    }
+                }
+            }
+
             // 去资源点采集
             findSource(creep)
         }
