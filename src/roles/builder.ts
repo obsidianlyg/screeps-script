@@ -14,6 +14,8 @@ import findSource from "utils/FindSource";
 
 import findContainer from "utils/FindContainer";
 
+import { transportEnergy, needsEnergyTransport } from "utils/EnergyTransport";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import { repairRoads } from "utils/repair";
@@ -114,8 +116,6 @@ let builderRole = {
     },
 // 移除不使用的参数 'creeps'
     run: function(creep:Creep) {
-        // --- 卡住检测和恢复 ---
-        handleStuckDetection(creep, creep.pos, 'stuck', 10);
 
         // --- 状态切换逻辑：通过内存管理 Creep 状态 ---
 
@@ -260,6 +260,12 @@ let builderRole = {
                 }
             } else {
                 // 如果没有工地可建，让 Builder 闲置下来做点别的事情 (比如升级 Controller)
+
+                // 执行能量搬运任务
+                // const isWorking = transportEnergy(creep);
+                // if (isWorking) {
+                //     return;
+                // }
 
                 // 修路
                 let reapirRoadBool = repairRoads(creep);

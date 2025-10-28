@@ -14,7 +14,6 @@ import findSource from "utils/FindSource";
 import findContainer from "utils/FindContainer";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
-import { handleStuckDetection } from "utils/StuckDetection";
 
 let upgradeRole = {
     create: function() {
@@ -142,10 +141,6 @@ let upgradeRole = {
             if (controller) { // 安全检查
                 const upgradeResult = creep.upgradeController(controller);
                 if (upgradeResult == ERR_NOT_IN_RANGE) {
-                    // 添加卡住检测机制
-                    if (handleStuckDetection(creep, controller, 'upgraderPosition', 5)) {
-                        return; // 绕路移动结束本轮
-                    }
 
                     creep.moveTo(controller, {
                         visualizePathStyle: { stroke: '#66ccff' },
