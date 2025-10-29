@@ -8,6 +8,8 @@ import builderRole from "roles/builder";
 
 import transporterRole from "roles/transporter";
 
+import claimerRole from "roles/claimer";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import towerRole from "roles/tower";
@@ -65,6 +67,8 @@ declare global {
     } | null;
     // 能量源类型缓存
     energySourceType?: 'container' | 'storage' | null;
+    // Claimer 相关
+    targetRoom?: string;
     [key: string]: any; // 允许动态属性访问
   }
 
@@ -120,6 +124,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // builderRole.create();
   transporterRole.create();
 
+  // Claimer 创建（需要指定目标房间）
+  // claimerRole.create('W9N8');
+
   // tower 执行
   towerRole.run(base.room);
 
@@ -140,6 +147,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       if (creep.memory.role == 'transporter') {
         transporterRole.run(creep);
+      }
+
+      if (creep.memory.role == 'claimer') {
+        claimerRole.run(creep);
       }
    }
 

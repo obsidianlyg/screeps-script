@@ -41,19 +41,29 @@ export const CARRIER_BODY: BodyPartConstant[] = [WORK, CARRY, CARRY, CARRY, CARR
 export const TRANSPORTER_COUNT: number = 1;
 
 /**
+ * 基础 Claimer 的身体部件配置
+ */
+export const CLAIMER_BODY: BodyPartConstant[] = [CLAIM, MOVE, MOVE, MOVE, MOVE, MOVE];
+
+/**
+ * Claimer 的目标数量
+ */
+export const CLAIMER_COUNT: number = 1;
+
+/**
  * bigscreep
  */
 
 // 大型运输工具
 export const BIG_COMMON_BODY: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
 // 主要目的是先升级采集者
-export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-export const BIG_HARVEST_COUNT: number = 6;
-export const BIG_BUILDER_COUNT: number = 3;
-export const BIG_UPGRADE_COUNT: number = 1;
+export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
+export const BIG_HARVEST_COUNT: number = 4;
+export const BIG_BUILDER_COUNT: number = 2;
+export const BIG_UPGRADE_COUNT: number = 4;
 // 能量显示
 export const BIG_ENERYG: number = 1000;
-export const BIG_ENERYG_TMP: number = 1000;
+export const BIG_ENERYG_TMP: number = 1100;
 
 // 您也可以在这里定义其他全局常量，比如 Spawn 的名称
 export const MAIN_SPAWN_NAME: string = 'obsidianlyg';
