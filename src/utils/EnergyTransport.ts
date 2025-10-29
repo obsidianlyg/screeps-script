@@ -197,7 +197,7 @@ export function transportEnergy(creep: Creep): boolean {
     // 搬运能量阶段
     const targets = findEnergyTargets(creep);
     if (targets.length === 0) {
-        console.log(`${creep.name}: 没有需要补充能量的建筑`);
+        // console.log(`${creep.name}: 没有需要补充能量的建筑`);
         return false;
     }
 
@@ -235,7 +235,7 @@ function handleEnergyWithdraw(creep: Creep, source: StructureContainer | Structu
     const result = creep.withdraw(source, RESOURCE_ENERGY);
 
     if (result === OK) {
-        console.log(`${creep.name}: 成功从 ${source.structureType} 获取能量`);
+        // console.log(`${creep.name}: 成功从 ${source.structureType} 获取能量`);
         // 记录能量源类型
         creep.memory.energySourceType = source.structureType === STRUCTURE_CONTAINER ? 'container' : 'storage';
         return true;
@@ -263,7 +263,7 @@ function handleEnergyTransfer(creep: Creep, target: AnyStructure): boolean {
     const result = creep.transfer(target, RESOURCE_ENERGY);
 
     if (result === OK) {
-        console.log(`${creep.name}: 成功向 ${target.structureType} 转移能量`);
+        // console.log(`${creep.name}: 成功向 ${target.structureType} 转移能量`);
         // 检查目标建筑是否已满（需要类型检查）
         if (hasStore(target) && target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
             creep.memory.transportTarget = null;
