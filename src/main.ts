@@ -1,6 +1,6 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 
-import havestRole from "roles/harvester";
+import harvesterRole from "roles/harvester";
 
 import upgradeRole from "roles/upgrader";
 
@@ -114,12 +114,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 创建
 
     // 巨型采集者
-  havestRole.createBig();
+  harvesterRole.createBig();
   upgradeRole.createBig();
   builderRole.createBig();
 
   // 基础搬运工
-  // havestRole.create();
+  // harvesterRole.create();
   // upgradeRole.create();
   // builderRole.create();
   transporterRole.create();
@@ -131,27 +131,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
   towerRole.run(base.room);
 
   const leftRoom = 'W9N8'
+  harvesterRole.createBySpawn(leftRoom, 200, 1);
   builderRole.createBySpawn(leftRoom, 200, 2, 0);
+  upgradeRole.createBySpawn(leftRoom, 200, 2, 0);
 
   // 执行任务
    for (let name in Game.creeps) {
       let creep = Game.creeps[name];
-      if (creep.memory.role == 'harvester' || creep.memory.role == 'big_harvester') {
-        havestRole.run(creep);
+      if (creep.memory.role == 'harvester' || creep.memory.role == 'big_harvester'
+        || creep.memory.role == 'harvester' + leftRoom
+      ) {
+        harvesterRole.run(creep);
       }
 
-      if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader') {
+      if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader'
+        || creep.memory.role == 'upgrader' + leftRoom
+      ) {
         // upgradeRole.run(creep);
-        upgradeRole.upgradeInRoom(creep, "W9N8")
+        upgradeRole.upgradeInRoom(creep, leftRoom)
       }
 
-      if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder') {
+      if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder'
+        || creep.memory.role == 'builder' + leftRoom
+      ) {
         // builderRole.run(creep);
-        builderRole.buildInRoom(creep, "W9N8");
-      }
-
-      if (creep.memory.role == 'builder' + leftRoom) {
-        builderRole.buildInRoom(creep, "W9N8");
+        builderRole.buildInRoom(creep, leftRoom);
       }
 
       if (creep.memory.role == 'transporter') {
