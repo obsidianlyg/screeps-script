@@ -33,7 +33,7 @@ export const BUILDER_COUNT: number = 1;
 /**
  * 基础 Transporter 的身体部件配置
  */
-export const CARRIER_BODY: BodyPartConstant[] = [WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE];
+export const CARRIER_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE];
 
 /**
  * Transporter 的目标数量
@@ -57,10 +57,10 @@ export const CLAIMER_COUNT: number = 1;
 // 大型运输工具
 export const BIG_COMMON_BODY: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
 // 主要目的是先升级采集者
-export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
-export const BIG_HARVEST_COUNT: number = 4;
+export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+export const BIG_HARVEST_COUNT: number = 3;
 export const BIG_BUILDER_COUNT: number = 2;
-export const BIG_UPGRADE_COUNT: number = 4;
+export const BIG_UPGRADE_COUNT: number = 3;
 // 能量显示
 export const BIG_ENERYG: number = 1000;
 export const BIG_ENERYG_TMP: number = 1100;

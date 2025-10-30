@@ -50,7 +50,7 @@ function repairRoads(creep: Creep): boolean {
     // 4. 执行修复或移动
     if (roadToRepair) {
         const repairResult = creep.repair(roadToRepair);
-        creep.say("r-Road");
+        creep.say("RR");
         if (repairResult === ERR_NOT_IN_RANGE) {
             // 使用 creep.moveTo()，它自带路径缓存（reusePath），CPU消耗较低
             creep.moveTo(roadToRepair, { visualizePathStyle: { stroke: '#ffffff' } });
