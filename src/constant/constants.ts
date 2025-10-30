@@ -38,7 +38,7 @@ export const CARRIER_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, CAR
 /**
  * Transporter 的目标数量
  */
-export const TRANSPORTER_COUNT: number = 1;
+export const TRANSPORTER_COUNT: number = 3;
 
 /**
  * 基础 Claimer 的身体部件配置

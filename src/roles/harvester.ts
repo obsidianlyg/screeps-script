@@ -55,6 +55,46 @@ let harvestRole = {
             }
         }
     },
+    createBySpawn: function(spawnName: string, energyLimit: number, count: number) {
+        const base = Game.spawns[spawnName];
+        if (!base) {
+            console.log("找不到 Spawn: " + spawnName);
+            return;
+        }
+
+        // 统计当前 Harvester 数量
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName);
+
+        // 如果数量不足
+        if (harvesters.length < count && base.store.getUsedCapacity(RESOURCE_ENERGY) >= energyLimit) {
+
+            // 生成一个唯一的名字
+            const newName = 'Harvester' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 Harvester: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(HARVESTER_BODY, newName, {
+                memory: {
+                    role: 'harvester' + spawnName,
+                    room: "",
+                    working: false
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 Harvester。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
     createBig: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
         if (!base) {

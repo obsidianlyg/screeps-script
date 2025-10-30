@@ -68,6 +68,52 @@ let builderRole = {
             }
         }
     },
+    createBySpawn: function(spawnName: string, energyLimit: number, count: number, harvesterCount: number) {
+        const base = Game.spawns[spawnName];
+        if (!base) {
+            console.log("找不到 Spawn: " + spawnName);
+            return;
+        }
+
+        // 加入限制以采集者为主，采集者数量不足优先创建采集者
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName);
+        if (harvesters.length < harvesterCount) {
+            return;
+        }
+
+        // 统计当前 Harvester 数量
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + spawnName);
+
+        // 如果数量不足
+        if (builders.length < count && base.store.getUsedCapacity(RESOURCE_ENERGY) >= energyLimit) {
+
+            // 生成一个唯一的名字
+            const newName = 'Builder' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 Builder: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(BUILDER_BODY, newName, {
+                memory: {
+                    role: 'builder' + spawnName,
+                    room: "",
+                    working: false
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 builder。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
     createBig: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
         if (!base) {
@@ -113,6 +159,29 @@ let builderRole = {
                 console.log(`生成 Creep 时发生错误: ${result}`);
             }
         }
+    },
+    // 指定房间建造方法
+    buildInRoom: function(creep: Creep, targetRoomName: string) {
+        // 检查目标房间是否可见
+        if (!Game.rooms[targetRoomName]) {
+            console.log(`${creep.name}: 目标房间 ${targetRoomName} 不可见，无法建造`);
+        }
+
+        const targetRoom = Game.rooms[targetRoomName];
+
+        // 检查 creep 是否在目标房间
+        if (creep.room.name !== targetRoomName) {
+            // 移动到目标房间
+            creep.say('🚶 移动中');
+            const result = creep.moveTo(new RoomPosition(25, 25, targetRoomName), {
+                visualizePathStyle: { stroke: '#ffff00ff' },
+                reusePath: 50
+            });
+            return;
+        }
+
+        // 运行creeper特定内容
+        this.run(creep)
     },
 // 移除不使用的参数 'creeps'
     run: function(creep:Creep) {

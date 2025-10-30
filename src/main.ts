@@ -130,6 +130,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // tower 执行
   towerRole.run(base.room);
 
+  const leftRoom = 'W9N8'
+  builderRole.createBySpawn(leftRoom, 200, 2, 0);
+
   // 执行任务
    for (let name in Game.creeps) {
       let creep = Game.creeps[name];
@@ -138,11 +141,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
 
       if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader') {
-        upgradeRole.run(creep);
+        // upgradeRole.run(creep);
+        upgradeRole.upgradeInRoom(creep, "W9N8")
       }
 
       if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder') {
-        builderRole.run(creep);
+        // builderRole.run(creep);
+        builderRole.buildInRoom(creep, "W9N8");
+      }
+
+      if (creep.memory.role == 'builder' + leftRoom) {
+        builderRole.buildInRoom(creep, "W9N8");
       }
 
       if (creep.memory.role == 'transporter') {
