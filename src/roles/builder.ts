@@ -85,7 +85,7 @@ let builderRole = {
         const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + spawnName);
 
         // 如果数量不足
-        if (builders.length < count && base.store.getUsedCapacity(RESOURCE_ENERGY) >= energyLimit) {
+        if (builders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
 
             // 生成一个唯一的名字
             const newName = 'Builder' + Game.time; // 使用当前时间戳创建唯一名字
@@ -97,6 +97,47 @@ let builderRole = {
                 memory: {
                     role: 'builder' + spawnName,
                     room: spawnName,
+                    working: false
+                }
+            });
+
+            // 打印生成结果，便于调试
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 builder。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+                // console.log(`Spawn 正在忙碌。`);
+            } else {
+                console.log(`生成 Creep 时发生错误: ${result}`);
+            }
+        }
+    },
+
+    createVolunteerBySpawn: function(originName: string, targetName: string, energyLimit: number, count: number, body: BodyPartConstant[]) {
+        const base = Game.spawns[originName];
+        if (!base) {
+            console.log("找不到 Spawn: " + originName);
+            return;
+        }
+
+        // 统计当前 Harvester 数量
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + originName);
+
+        // 如果数量不足
+        if (builders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
+
+            // 生成一个唯一的名字
+            const newName = 'Builder' + Game.time; // 使用当前时间戳创建唯一名字
+
+            console.log(`尝试生成新的 Builder: ${newName}`);
+
+            // 尝试生成 Creep 并检查结果
+            const result = base.spawnCreep(body, newName, {
+                memory: {
+                    role: 'builder' + originName,
+                    room: targetName,
                     working: false
                 }
             });
@@ -294,7 +335,7 @@ let builderRole = {
                 const cachedTarget = Game.getObjectById(creep.memory.targetConstructionSiteId);
                 if (cachedTarget && cachedTarget instanceof ConstructionSite) {
                     actualTargetSite = cachedTarget;
-                    console.log(`${creep.name}: 使用缓存的目标工地 ${actualTargetSite.id}`);
+                    // console.log(`${creep.name}: 使用缓存的目标工地 ${actualTargetSite.id}`);
                 }
             }
 
@@ -302,7 +343,7 @@ let builderRole = {
             if (!actualTargetSite && targetSite) {
                 actualTargetSite = targetSite;
                 creep.memory.targetConstructionSiteId = targetSite.id;
-                console.log(`${creep.name}: 使用新选择的目标工地 ${targetSite.id}`);
+                // console.log(`${creep.name}: 使用新选择的目标工地 ${targetSite.id}`);
             }
 
             if (actualTargetSite) {
@@ -318,7 +359,7 @@ let builderRole = {
                         serializeMemory: true  // 避免内存序列化问题
                     });
                 } else if (buildResult === OK) {
-                    console.log(`${creep.name}: 正在建造工地 ${actualTargetSite.id}`);
+                    // console.log(`${creep.name}: 正在建造工地 ${actualTargetSite.id}`);
                     // 建造中，继续工作
                     // 移除目标缓存 - 下次根据优先级再查
                     creep.memory.targetConstructionSiteId = null;
@@ -362,7 +403,7 @@ let builderRole = {
 
             // 如果没有找到可用的Container，就 fallback 到从 Source 采集
             if (!containerFound) {
-                console.log(`${creep.name}: 没有可用container，转而去采集资源源`);
+                // console.log(`${creep.name}: 没有可用container，转而去采集资源源`);
                 // 去资源点采集
                 findSource(creep)
             }

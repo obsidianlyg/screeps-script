@@ -14,6 +14,8 @@ import {
     calculateBodyCost
 } from '../utils/BodyUtils';
 
+import { getSpawnAndExtensionEnergy } from 'utils/GetEnergy';
+
 import { ENERGY_THRESHOLDS, RCL_TO_CREEP_LEVEL } from '../constant/constants';
 
 /**
@@ -34,10 +36,10 @@ export function createHarvesterByRCL(spawn: StructureSpawn, roomName: string) {
     console.log(`RCL ${rcl} 房间创建 ${level} 等级采集者，成本: ${bodyCost}`);
 
     // 检查是否有足够能量
-    if (canAffordBody(body, spawn.store.getUsedCapacity(RESOURCE_ENERGY))) {
+    if (canAffordBody(body, getSpawnAndExtensionEnergy(room))) {
         const result = spawn.spawnCreep(body, `Harvester_${Game.time}`, {
             memory: {
-                role: CreepRole.HARVESTER,
+                role: CreepRole.HARVESTER + roomName,
                 level: level,
                 room: roomName,
                 working: false
@@ -48,15 +50,20 @@ export function createHarvesterByRCL(spawn: StructureSpawn, roomName: string) {
             console.log(`成功创建 ${level} 等级采集者`);
         }
     } else {
-        console.log(`能量不足，需要 ${bodyCost}，当前只有 ${spawn.store.getUsedCapacity(RESOURCE_ENERGY)}`);
+        console.log(`能量不足，需要 ${bodyCost}，当前只有 ${getSpawnAndExtensionEnergy(room)}`);
     }
 }
 
 /**
  * 根据可用能量创建自适应的建造者
  */
-export function createAdaptiveBuilder(spawn: StructureSpawn, count: number = 1) {
-    const availableEnergy = spawn.store.getUsedCapacity(RESOURCE_ENERGY);
+export function createAdaptiveBuilder(spawn: StructureSpawn, count: number = 1, roomName: string) {
+
+    const room = Game.rooms[roomName];
+    if (!room) return;
+
+    const availableEnergy = getSpawnAndExtensionEnergy(room);
+
 
     // 根据可用能量确定最高可达等级
     let level = getLevelByEnergy(availableEnergy);
@@ -76,13 +83,13 @@ export function createAdaptiveBuilder(spawn: StructureSpawn, count: number = 1) 
 
     // 统计当前建造者数量
     const currentBuilders = _.filter(Game.creeps, creep =>
-        creep.memory.role === CreepRole.BUILDER
+        creep.memory.role === CreepRole.BUILDER + roomName
     ).length;
 
     if (currentBuilders < count) {
         const result = spawn.spawnCreep(body, `Builder_${Game.time}`, {
             memory: {
-                role: CreepRole.BUILDER,
+                role: CreepRole.BUILDER + roomName,
                 level: level,
                 working: false,
                 room: ''
@@ -101,7 +108,9 @@ export function createAdaptiveBuilder(spawn: StructureSpawn, count: number = 1) 
  * 创建搬运队伍（多个等级的搬运者）
  */
 export function createTransportTeam(spawn: StructureSpawn, roomName: string) {
-    const availableEnergy = spawn.store.getUsedCapacity(RESOURCE_ENERGY);
+    const room = Game.rooms[roomName];
+    if (!room) return;
+    const availableEnergy = getSpawnAndExtensionEnergy(room);
 
     // 根据能量创建不同等级的搬运者
     const transportConfigs = [
@@ -115,14 +124,14 @@ export function createTransportTeam(spawn: StructureSpawn, roomName: string) {
 
             // 统计当前该等级的搬运者数量
             const currentTransporters = _.filter(Game.creeps, creep =>
-                creep.memory.role === CreepRole.TRANSPORTER &&
+                creep.memory.role === CreepRole.TRANSPORTER + roomName &&
                 creep.memory.level === config.level
             ).length;
 
             if (currentTransporters < config.count) {
                 const result = spawn.spawnCreep(body, `Transporter_${config.level}_${Game.time}`, {
                     memory: {
-                        role: CreepRole.TRANSPORTER,
+                        role: CreepRole.TRANSPORTER + roomName,
                         level: config.level,
                         room: roomName,
                         working: false
@@ -155,14 +164,14 @@ export function adaptiveCreepProduction(spawn: StructureSpawn, roomName: string)
         case 2:
             // 早期：基础采集者和建造者
             createHarvesterByRCL(spawn, roomName);
-            createAdaptiveBuilder(spawn, 1);
+            createAdaptiveBuilder(spawn, 1, roomName);
             break;
 
         case 3:
         case 4:
             // 中期：加入搬运者
             createHarvesterByRCL(spawn, roomName);
-            createAdaptiveBuilder(spawn, 2);
+            createAdaptiveBuilder(spawn, 2, roomName);
             createTransportTeam(spawn, roomName);
             break;
 
@@ -170,7 +179,7 @@ export function adaptiveCreepProduction(spawn: StructureSpawn, roomName: string)
         case 6:
             // 后期：高等级 Creep
             createHarvesterByRCL(spawn, roomName);
-            createAdaptiveBuilder(spawn, 3);
+            createAdaptiveBuilder(spawn, 3, roomName);
             createTransportTeam(spawn, roomName);
             break;
 
@@ -178,7 +187,7 @@ export function adaptiveCreepProduction(spawn: StructureSpawn, roomName: string)
         case 8:
             // 终期：精英级 Creep
             createHarvesterByRCL(spawn, roomName);
-            createAdaptiveBuilder(spawn, 5);
+            createAdaptiveBuilder(spawn, 5, roomName);
             createTransportTeam(spawn, roomName);
             break;
     }

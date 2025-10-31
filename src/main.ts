@@ -141,15 +141,24 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // tower 执行
   towerRole.run(base.room);
 
+
+
+  // 小基地的特殊配置
   const leftRoom = 'W9N8'
   const leftRoomBase = Game.rooms[leftRoom];
-  const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+   // 创建志愿者
+   const VBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+  builderRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
+  upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
+
+  // const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+  const leftRoomLevel = 1;
   const leftRoomBodyHarvest = getBodyByRole(CreepRole.HARVESTER, leftRoomLevel)
   const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
   const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
   harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 1, leftRoomBodyHarvest);
-  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 0, leftRoomBodyBuild);
-  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 1, 0, leftRoomBodyUpgrade);
+  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
+  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 1, 1, leftRoomBodyUpgrade);
 
   // 执行任务
    for (let name in Game.creeps) {
@@ -164,20 +173,29 @@ export const loop = ErrorMapper.wrapLoop(() => {
         || creep.memory.role == 'upgrader' + leftRoom
       ) {
         upgradeRole.run(creep);
-        // upgradeRole.upgradeInRoom(creep, leftRoom)
       }
 
       if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder'
         || creep.memory.role == 'builder' + leftRoom
       ) {
-        // builderRole.run(creep);
-        builderRole.buildInRoom(creep, leftRoom);
+        builderRole.run(creep);
       }
 
+      // 搬运
       if (creep.memory.role == 'transporter') {
         transporterRole.run(creep);
       }
 
+      // 志愿者的判断
+      if (creep.memory.role == 'builder' + MAIN_SPAWN_NAME && creep.memory.room == leftRoom) {
+        builderRole.buildInRoom(creep, leftRoom);
+      }
+
+      if (creep.memory.role == 'upgrader' + MAIN_SPAWN_NAME && creep.memory.room == leftRoom) {
+        upgradeRole.upgradeInRoom(creep, leftRoom);
+      }
+
+      // 占领
       if (creep.memory.role == 'claimer') {
         claimerRole.run(creep);
       }

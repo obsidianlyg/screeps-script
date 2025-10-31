@@ -6,6 +6,8 @@ import {
 
 import { transportEnergy, needsEnergyTransport } from "utils/EnergyTransport";
 
+import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
+
 let transporterRole = {
     create: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
@@ -56,7 +58,7 @@ let transporterRole = {
         const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporter' + spawnName);
 
         // 如果数量不足且能量足够，创建新的 transporter
-        if (transporters.length < count && base.store.getUsedCapacity(RESOURCE_ENERGY) >= energyLimit) {
+        if (transporters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
             const newName = 'Transporter' + Game.time;
 
             console.log(`尝试生成新的 Transporter: ${newName}`);
