@@ -157,9 +157,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const leftRoomBodyHarvest = getBodyByRole(CreepRole.HARVESTER, leftRoomLevel)
   const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
   const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
-  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 3, leftRoomBodyHarvest);
+  const leftRoomBodyTranspost = getBodyByRole(CreepRole.TRANSPORTER, leftRoomLevel);
+  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 4, leftRoomBodyHarvest);
   builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
-  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 1, 1, leftRoomBodyUpgrade);
+  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 2, 1, leftRoomBodyUpgrade);
+  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 1, leftRoomBodyTranspost)
   // tower by leftRoom
   towerRole.run(leftRoomBase);
 
@@ -185,7 +187,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
 
       // 搬运
-      if (creep.memory.role == 'transporter') {
+      if (creep.memory.role == 'transporter' || creep.memory.role == 'transporter' + leftRoom) {
         transporterRole.run(creep);
       }
 

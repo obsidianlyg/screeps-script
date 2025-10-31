@@ -104,11 +104,14 @@ let transporterRole = {
             // 可以让闲置的 creep 去帮助升级控制器或者做其他有用的事情
             const controller = creep.room.controller;
             if (controller && creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-                creep.say('⬆️ 升级');
-                if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+                creep.say('💤 闲置');
+                const upgradeResult = creep.upgradeController(controller);
+                if (upgradeResult == ERR_NOT_IN_RANGE) {
                     creep.moveTo(controller, {
-                        visualizePathStyle: { stroke: '#cccccc' },
-                        ignoreCreeps: true
+                        visualizePathStyle: { stroke: '#66ccff' },
+                        ignoreCreeps: false,
+                        maxOps: 1000,
+                        heuristicWeight: 1.2
                     });
                 }
             } else {
