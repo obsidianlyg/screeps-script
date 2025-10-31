@@ -59,11 +59,39 @@ export const BIG_COMMON_BODY: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARR
 // 主要目的是先升级采集者
 export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
 export const BIG_HARVEST_COUNT: number = 3;
-export const BIG_BUILDER_COUNT: number = 2;
-export const BIG_UPGRADE_COUNT: number = 3;
+export const BIG_BUILDER_COUNT: number = 3;
+export const BIG_UPGRADE_COUNT: number = 2;
 // 能量显示
 export const BIG_ENERYG: number = 1000;
 export const BIG_ENERYG_TMP: number = 1100;
 
 // 您也可以在这里定义其他全局常量，比如 Spawn 的名称
 export const MAIN_SPAWN_NAME: string = 'obsidianlyg';
+
+// Creep 等级相关常量
+export const CREEP_LEVELS = {
+    BASIC: 1,      // 基础等级
+    MEDIUM: 2,     // 中等等级
+    ADVANCED: 3,   // 高级等级
+    ELITE: 4       // 精英等级
+} as const;
+
+// 不同等级对应的能量阈值
+export const ENERGY_THRESHOLDS = {
+    [CREEP_LEVELS.BASIC]: 300,      // 基础能量需求
+    [CREEP_LEVELS.MEDIUM]: 800,     // 中等能量需求
+    [CREEP_LEVELS.ADVANCED]: 1500,  // 高级能量需求
+    [CREEP_LEVELS.ELITE]: 2500      // 精英能量需求
+} as const;
+
+// 房间控制等级对应的建议 Creep 等级
+export const RCL_TO_CREEP_LEVEL: { [key: number]: number } = {
+    1: CREEP_LEVELS.BASIC,
+    2: CREEP_LEVELS.BASIC,
+    3: CREEP_LEVELS.MEDIUM,
+    4: CREEP_LEVELS.MEDIUM,
+    5: CREEP_LEVELS.ADVANCED,
+    6: CREEP_LEVELS.ADVANCED,
+    7: CREEP_LEVELS.ELITE,
+    8: CREEP_LEVELS.ELITE
+};

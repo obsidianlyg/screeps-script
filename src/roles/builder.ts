@@ -50,7 +50,7 @@ let builderRole = {
             const result = base.spawnCreep(BUILDER_BODY, newName, {
                 memory: {
                     role: 'builder',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false
                 }
             });
@@ -68,7 +68,7 @@ let builderRole = {
             }
         }
     },
-    createBySpawn: function(spawnName: string, energyLimit: number, count: number, harvesterCount: number) {
+    createBySpawn: function(spawnName: string, energyLimit: number, count: number, harvesterCount: number, body: BodyPartConstant[]) {
         const base = Game.spawns[spawnName];
         if (!base) {
             console.log("找不到 Spawn: " + spawnName);
@@ -93,10 +93,10 @@ let builderRole = {
             console.log(`尝试生成新的 Builder: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
-            const result = base.spawnCreep(BUILDER_BODY, newName, {
+            const result = base.spawnCreep(body, newName, {
                 memory: {
                     role: 'builder' + spawnName,
-                    room: "",
+                    room: spawnName,
                     working: false
                 }
             });
@@ -142,7 +142,7 @@ let builderRole = {
             const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
                     role: 'big_builder',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false
                 }
             });
@@ -222,7 +222,8 @@ let builderRole = {
                     const ROAD_PROGRESS_SKIP_THRESHOLD = 0.90; // 90%
                     // return site.progress / site.progressTotal < ROAD_PROGRESS_SKIP_THRESHOLD;
                     // TODO 临时设置小路优先
-                    return site.progressTotal < 2000
+                    // return site.progressTotal < 2000
+                    return true;
                 }
 
                 // extention开关

@@ -37,7 +37,7 @@ let harvestRole = {
             const result = base.spawnCreep(HARVESTER_BODY, newName, {
                 memory: {
                     role: 'harvester',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false
                 }
             });
@@ -55,7 +55,7 @@ let harvestRole = {
             }
         }
     },
-    createBySpawn: function(spawnName: string, energyLimit: number, count: number) {
+    createBySpawn: function(spawnName: string, energyLimit: number, count: number, body: BodyPartConstant[]) {
         const base = Game.spawns[spawnName];
         if (!base) {
             console.log("找不到 Spawn: " + spawnName);
@@ -74,10 +74,10 @@ let harvestRole = {
             console.log(`尝试生成新的 Harvester: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
-            const result = base.spawnCreep(HARVESTER_BODY, newName, {
+            const result = base.spawnCreep(body, newName, {
                 memory: {
                     role: 'harvester' + spawnName,
-                    room: "",
+                    room: spawnName,
                     working: false
                 }
             });
@@ -117,7 +117,7 @@ let harvestRole = {
             const result = base.spawnCreep(BIG_COMMON_BODY_TMP, newName, {
                 memory: {
                     role: 'big_harvester',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false
                 }
             });

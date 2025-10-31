@@ -44,7 +44,7 @@ let upgradeRole = {
             const result = base.spawnCreep(UPGRADER_BODY, newName, {
                 memory: {
                     role: 'upgrader',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false,
                     assignedSource: null  // 添加资源源分配字段
                 }
@@ -63,7 +63,7 @@ let upgradeRole = {
             }
         }
     },
-    createBySpawn: function(spawnName: string, energyLimit: number, count: number, harvesterCount: number) {
+    createBySpawn: function(spawnName: string, energyLimit: number, count: number, harvesterCount: number, body: BodyPartConstant[]) {
         const base = Game.spawns[spawnName];
         if (!base) {
             console.log("找不到 Spawn: " + spawnName);
@@ -88,10 +88,10 @@ let upgradeRole = {
             console.log(`尝试生成新的 Upgrader: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
-            const result = base.spawnCreep(UPGRADER_BODY, newName, {
+            const result = base.spawnCreep(body, newName, {
                 memory: {
                     role: 'upgrader' + spawnName,
-                    room: "",
+                    room: spawnName,
                     working: false,
                     assignedSource: null  // 添加资源源分配字段
                 }
@@ -138,7 +138,7 @@ let upgradeRole = {
             const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
                 memory: {
                     role: 'big_upgrader',
-                    room: "",
+                    room: MAIN_SPAWN_NAME,
                     working: false,
                     assignedSource: null  // 添加资源源分配字段
                 }

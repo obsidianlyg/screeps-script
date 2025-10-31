@@ -12,6 +12,17 @@ import claimerRole from "roles/claimer";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
+import {
+    CreepRole,
+    CreepLevel,
+    getBodyByRole,
+    getLevelByRCL,
+    getLevelByEnergy,
+    canAffordBody,
+    adjustBodyToEnergy,
+    calculateBodyCost
+} from './utils/BodyUtils';
+
 import towerRole from "roles/tower";
 
 import {
@@ -131,9 +142,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   towerRole.run(base.room);
 
   const leftRoom = 'W9N8'
-  harvesterRole.createBySpawn(leftRoom, 200, 1);
-  builderRole.createBySpawn(leftRoom, 200, 2, 0);
-  upgradeRole.createBySpawn(leftRoom, 200, 2, 0);
+  const leftRoomBase = Game.rooms[leftRoom];
+  const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+  const leftRoomBodyHarvest = getBodyByRole(CreepRole.HARVESTER, leftRoomLevel)
+  const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
+  const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
+  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 1, leftRoomBodyHarvest);
+  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 0, leftRoomBodyBuild);
+  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 1, 0, leftRoomBodyUpgrade);
 
   // 执行任务
    for (let name in Game.creeps) {
@@ -147,8 +163,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader'
         || creep.memory.role == 'upgrader' + leftRoom
       ) {
-        // upgradeRole.run(creep);
-        upgradeRole.upgradeInRoom(creep, leftRoom)
+        upgradeRole.run(creep);
+        // upgradeRole.upgradeInRoom(creep, leftRoom)
       }
 
       if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder'
