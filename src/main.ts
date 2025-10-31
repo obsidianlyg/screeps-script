@@ -146,19 +146,22 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 小基地的特殊配置
   const leftRoom = 'W9N8'
   const leftRoomBase = Game.rooms[leftRoom];
+  const leftRoomSpwan = Game.spawns[leftRoom];
    // 创建志愿者
    const VBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-  builderRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
-  upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
+  // builderRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
+  // upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
 
-  // const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
-  const leftRoomLevel = 1;
+  const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+  // const leftRoomLevel = 3;
   const leftRoomBodyHarvest = getBodyByRole(CreepRole.HARVESTER, leftRoomLevel)
   const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
   const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
-  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 1, leftRoomBodyHarvest);
+  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 3, leftRoomBodyHarvest);
   builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
   upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 1, 1, leftRoomBodyUpgrade);
+  // tower by leftRoom
+  towerRole.run(leftRoomBase);
 
   // 执行任务
    for (let name in Game.creeps) {

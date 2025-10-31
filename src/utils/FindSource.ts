@@ -59,6 +59,16 @@ function findSource(creep:Creep) {
                     continue;
                 }
 
+                if (source.id == '088407718c7f377' && (assignedCount >= 3)) {
+                    console.log("特殊能量源人数已达上限， 3")
+                    continue;
+                }
+
+                if (source.id == 'b8e007718c76b6e' && (assignedCount >= 3)) {
+                    console.log("特殊能量源人数已达上限， 3")
+                    continue;
+                }
+
                 // 优先级 1：分配人数少的优先
                 if (assignedCount < minAssignedCreeps) {
                     minAssignedCreeps = assignedCount;
