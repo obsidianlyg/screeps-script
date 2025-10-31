@@ -354,9 +354,10 @@ let builderRole = {
                     // 移动到工地，使用长路径缓存避免重复计算
                     creep.moveTo(actualTargetSite, {
                         visualizePathStyle: { stroke: '#00ff2aff' },
-                        ignoreCreeps: true,
-                        reusePath: 50,  // 长缓存，50tick内复用路径
-                        serializeMemory: true  // 避免内存序列化问题
+                        ignoreCreeps: false,  // 正常情况下不穿过creep
+                        maxOps: 1000,
+                        heuristicWeight: 1.2,
+                        range: 1
                     });
                 } else if (buildResult === OK) {
                     // console.log(`${creep.name}: 正在建造工地 ${actualTargetSite.id}`);

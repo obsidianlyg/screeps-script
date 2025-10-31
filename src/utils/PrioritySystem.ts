@@ -235,19 +235,23 @@ export function findEnergySourceByPriority(creep: Creep, mode: PriorityMode): St
  */
 export function getPriorityMode(creepRole: string, isWartime: boolean = false): PriorityMode {
     if (isWartime) {
-        if (creepRole === 'harvester' || creepRole === 'big_harvester') {
+        if (checkPrefix(creepRole, 'harvester') || checkPrefix(creepRole, 'big_harvester')) {
             return PriorityMode.WARTIME_HARVESTER;
-        } else if (creepRole === 'transporter') {
+        } else if (checkPrefix(creepRole, 'transporter')) {
             return PriorityMode.WARTIME_TRANSPORTER;
         }
     } else {
-        if (creepRole === 'harvester' || creepRole === 'big_harvester') {
+        if (checkPrefix(creepRole, 'harvester') || checkPrefix(creepRole, 'big_harvester')) {
             return PriorityMode.IDLE_HARVESTER;
         }
     }
 
     // 默认使用闲时采集者模式
     return PriorityMode.IDLE_HARVESTER;
+}
+
+function checkPrefix(mainStr: string, prefix: string): boolean {
+  return mainStr.startsWith(prefix);
 }
 
 /**
