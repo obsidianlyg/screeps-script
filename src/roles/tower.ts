@@ -209,7 +209,7 @@ function runTowerRepairWall(tower: StructureTower): boolean {
 
     // 2. 定义修复目标耐久度（针对 Walls/Ramparts）
     // 只有低于这个值才会被 Tower 视为修复目标。
-    const DEFENSE_TARGET_HITS = 50000; // 目标修复到 50,000 hits
+    const DEFENSE_TARGET_HITS = 100000; // 目标修复到 50,000 hits
 
     // 3. 查找所有需要修复的结构
     const structuresToRepair = tower.room.find(FIND_STRUCTURES, {

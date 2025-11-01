@@ -150,6 +150,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
   minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
 
+  // 做个矿工搬运者
+  const minerTansBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+  transporterRole.createMineralTransporter(
+                mainRoomSpwan,
+                RESOURCE_ZYNTHIUM,
+                'W8N8',
+                'W8N8'
+            );
+
 
 
   // 小基地的特殊配置
@@ -169,8 +178,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const leftRoomBodyTranspost = getBodyByRole(CreepRole.TRANSPORTER, leftRoomLevel);
   harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 4, leftRoomBodyHarvest);
   builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
-  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 2, 1, leftRoomBodyUpgrade);
-  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 1, leftRoomBodyTranspost)
+  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 3, 1, leftRoomBodyUpgrade);
+  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 1, leftRoomBodyTranspost, 'energy')
   // tower by leftRoom
   towerRole.run(leftRoomBase);
 
@@ -202,6 +211,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       // 搬运
       if (creep.memory.role == 'transporter' || creep.memory.role == 'transporter' + leftRoom) {
+        transporterRole.run(creep);
+      }
+
+      // 特殊搬运者
+      if (creep.memory.role == 'transporter' + mainRoom) {
         transporterRole.run(creep);
       }
 
