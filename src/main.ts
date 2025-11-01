@@ -10,6 +10,8 @@ import transporterRole from "roles/transporter";
 
 import claimerRole from "roles/claimer";
 
+import minerRole from "roles/miner";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
@@ -141,6 +143,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // tower 执行
   towerRole.run(base.room);
 
+  // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
+  const mainRoom = MAIN_SPAWN_NAME;
+  const mainRoomBase = Game.rooms[mainRoom];
+  const mainRoomSpwan = Game.spawns[mainRoom];
+  const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+  minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
+
 
 
   // 小基地的特殊配置
@@ -184,6 +193,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
         || creep.memory.role == 'builder' + leftRoom
       ) {
         builderRole.run(creep);
+      }
+
+      // 矿工
+      if (creep.memory.role == 'miner' + mainRoom) {
+        minerRole.run(creep);
       }
 
       // 搬运
