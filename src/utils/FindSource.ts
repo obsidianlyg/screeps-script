@@ -30,6 +30,8 @@ function findSource(creep:Creep) {
 
             // 1. 【预先统计】计算每个 Source ID 的分配人数
             const assignmentCounts: Record<Id<Source>, number> = {} as Record<Id<Source>, number>;
+            // 统计采集者个数
+            const harvestCounts: Record<Id<Source>, number> = {} as Record<Id<Source>, number>;
 
             // 初始化计数器，并统计当前所有 screep 的分配情况
             for (const creepName in Game.creeps) {
@@ -41,6 +43,9 @@ function findSource(creep:Creep) {
 
                     // 将计数器中的人数 +1
                     assignmentCounts[assignedId] = (assignmentCounts[assignedId] || 0) + 1;
+                    if (currentCreep.memory.role.startsWith('harvester')) {
+                        harvestCounts[assignedId] = (harvestCounts[assignedId] || 0) + 1;
+                    }
                 }
             }
 
@@ -49,6 +54,7 @@ function findSource(creep:Creep) {
             for (const source of sources) {
                 // 获取当前 Source 的分配人数（如果没分配，则为 0）
                 const assignedCount = assignmentCounts[source.id] || 0;
+                const harvestCount = harvestCounts[source.id] || 0;
 
                 // 特殊资源 - 特殊人数限制
                 console.log("source.id: " + source.id);
@@ -59,13 +65,13 @@ function findSource(creep:Creep) {
                     continue;
                 }
 
-                if (source.id == '088407718c7f377' && (assignedCount >= 3) && !isHarvester) {
+                if (source.id == '088407718c7f377' && (harvestCount >= 3)) {
                     console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
                 // 只限制采集者个数
-                if (source.id == 'b8e007718c76b6e' && (assignedCount >= 3)  && !isHarvester) {
+                if (source.id == 'b8e007718c76b6e' && (harvestCount >= 3)) {
                     console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
