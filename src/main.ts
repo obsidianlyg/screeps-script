@@ -149,8 +149,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const mainRoom = MAIN_SPAWN_NAME;
   const mainRoomBase = Game.rooms[mainRoom];
   const mainRoomSpwan = Game.spawns[mainRoom];
-  const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-  minerRole.createBySpawn(mainRoom, 1000, 2, minerBody);
+  const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
+  minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
 
   // 做个矿工搬运者
   const minerTansBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];

@@ -43,7 +43,7 @@ function findSource(creep:Creep) {
 
                     // 将计数器中的人数 +1
                     assignmentCounts[assignedId] = (assignmentCounts[assignedId] || 0) + 1;
-                    if (currentCreep.memory.role.startsWith('harvester')) {
+                    if (currentCreep.memory.role.startsWith('harvester') || currentCreep.memory.role.startsWith('big_harvester')) {
                         harvestCounts[assignedId] = (harvestCounts[assignedId] || 0) + 1;
                     }
                 }
@@ -59,11 +59,11 @@ function findSource(creep:Creep) {
                 // 特殊资源 - 特殊人数限制
                 console.log("source.id: " + source.id);
                 console.log("assignedCount: " + assignedCount);
-                let isHarvester = creep.memory.role == "big_harvester" || creep.memory.role == "harvester" || creep.memory.role.startsWith('harvester')
-                if (source.id == 'fd3d07720e87b83' && (assignedCount >= 3 || !isHarvester)) {
-                    console.log("特殊能量源人数已达上限， 3")
-                    continue;
-                }
+                // let isHarvester = creep.memory.role == "big_harvester" || creep.memory.role == "harvester" || creep.memory.role.startsWith('harvester')
+                // if (source.id == 'fd3d07720e87b83' && (assignedCount >= 3 || !isHarvester)) {
+                //     console.log("特殊能量源人数已达上限， 3")
+                //     continue;
+                // }
 
                 if (source.id == '088407718c7f377' && (harvestCount >= 3)) {
                     console.log("特殊能量源人数已达上限， 3")
@@ -73,6 +73,16 @@ function findSource(creep:Creep) {
                 // 只限制采集者个数
                 if (source.id == 'b8e007718c76b6e' && (harvestCount >= 3)) {
                     console.log("特殊能量源人数已达上限， 3")
+                    continue;
+                }
+
+                if (source.id == 'fd3d07720e87b83' && (harvestCount >= 1)) {
+                    console.log("特殊能量源人数已达上限， 1")
+                    continue;
+                }
+
+                if (source.id == '30d007720e8ef7b' && (harvestCount >= 1)) {
+                    console.log("特殊能量源人数已达上限， 1")
                     continue;
                 }
 
