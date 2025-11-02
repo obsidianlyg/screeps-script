@@ -289,6 +289,73 @@ export function adjustBodyToEnergy(baseBody: BodyPartConstant[], availableEnergy
     return currentCost <= remainingEnergy ? [...otherParts, ...moveParts] : [WORK, CARRY, MOVE];
 }
 
+/**
+ * 根据类型和数量创建 Creep 身体部件数组。
+ * * @param partsConfig 包含部件类型和数量的配置对象 (例如: { work: 5, carry: 5, move: 10 })
+ * @returns {BodyPartConstant[]} 标准的 Creep 身体部件数组
+ */
+export function createBodyParts(partsConfig: Record<string, number>): BodyPartConstant[] {
+    const body: BodyPartConstant[] = [];
+
+    // 遍历配置对象
+    for (const partType in partsConfig) {
+        if (partsConfig.hasOwnProperty(partType)) {
+            const count = partsConfig[partType];
+
+            // 将字符串键转换为 Screeps 对应的 BodyPartConstant
+            let constantType: BodyPartConstant | undefined;
+
+            // 注意：这里需要根据您在配置中使用的字符串来映射到 SCREEPS 官方常量
+            switch (partType.toLowerCase()) {
+                case 'work':
+                    constantType = WORK;
+                    break;
+                case 'carry':
+                    constantType = CARRY;
+                    break;
+                case 'move':
+                    constantType = MOVE;
+                    break;
+                case 'attack':
+                    constantType = ATTACK;
+                    break;
+                case 'ranged_attack':
+                    constantType = RANGED_ATTACK;
+                    break;
+                case 'heal':
+                    constantType = HEAL;
+                    break;
+                case 'tough':
+                    constantType = TOUGH;
+                    break;
+                case 'claim':
+                    constantType = CLAIM;
+                    break;
+                default:
+                    // 忽略无效的部件类型
+                    console.warn(`[createBodyParts] 警告: 未知部件类型 "${partType}"`);
+                    continue;
+            }
+
+            // 将指定数量的部件推入数组
+            for (let i = 0; i < count; i++) {
+                if (constantType) {
+                    body.push(constantType);
+                }
+            }
+        }
+    }
+
+    // 注意：Screeps 要求身体部件的顺序可能影响 Creep 的性能或行为（如 TOUGH 应该放前面），
+    // 默认的遍历顺序可能不满足这个要求。如果需要特定的顺序，需要先排序。
+    return body;
+}
+
+// 辅助方法：计算该配置的总造价
+// function calculateBodyCost(body: BodyPartConstant[]): number {
+//     return body.reduce((cost, part) => cost + BODYPART_COST[part], 0);
+// }
+
 // 默认导出
 export default {
     getHarvesterBody,
@@ -304,6 +371,7 @@ export default {
     calculateBodyCost,
     canAffordBody,
     adjustBodyToEnergy,
+    createBodyParts,
     CreepRole,
     CreepLevel,
     ENERGY_REQUIREMENTS
