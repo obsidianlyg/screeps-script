@@ -446,7 +446,7 @@ let transporterRole = {
 
         const availableEnergy = spawn.store.getUsedCapacity(RESOURCE_ENERGY);
 
-        if (mineralTransporters.length < count && availableEnergy >= 200) {
+        if (mineralTransporters.length < count && availableEnergy >= 600) {
             const newName = `MineralTransporter_${mineralType}_${Game.time}`;
 
             console.log(`尝试生成新的矿物运输者: ${newName}`);

@@ -6,6 +6,8 @@ import {
     BIG_ENERYG,
     HARVESTER_COUNT,
     BIG_HARVEST_COUNT,
+    BIG_UP_BODY,
+    BIG_UP_ENERYG,
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
@@ -168,7 +170,7 @@ let upgradeRole = {
         const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'big_upgrader');
 
         // 如果数量不足
-        if (upgraders.length < BIG_UPGRADE_COUNT && getDefaultEneryg() >= BIG_ENERYG) {
+        if (upgraders.length < BIG_UPGRADE_COUNT && getDefaultEneryg() >= BIG_UP_ENERYG) {
 
             // 生成一个唯一的名字
             const newName = 'big_upgrader' + Game.time; // 使用当前时间戳创建唯一名字
@@ -176,7 +178,7 @@ let upgradeRole = {
             // console.log(`尝试生成新的 big_upgrader: ${newName}`);
 
             // 尝试生成 Creep 并检查结果
-            const result = base.spawnCreep(BIG_COMMON_BODY, newName, {
+            const result = base.spawnCreep(BIG_UP_BODY, newName, {
                 memory: {
                     role: 'big_upgrader',
                     room: MAIN_SPAWN_NAME,

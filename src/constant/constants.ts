@@ -1,5 +1,16 @@
 // 定义 Creep 体部件的类型（BodyPartConstant 是 Screeps TS 类型）
 
+import {
+    CreepRole,
+    CreepLevel,
+    getBodyByRole,
+    getLevelByRCL,
+    getLevelByEnergy,
+    canAffordBody,
+    calculateBodyCost,
+    createBodyParts
+} from '../utils/BodyUtils';
+
 /**
  * 基础 Harvester 的身体部件配置
  */
@@ -56,14 +67,23 @@ export const CLAIMER_COUNT: number = 1;
 
 // 大型运输工具
 export const BIG_COMMON_BODY: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+
+// 大型升级者
+const upConfig = {
+    work: 10,
+    carry: 10,
+    move: 10
+};
+export const BIG_UP_BODY: BodyPartConstant[] = createBodyParts(upConfig);
+export const BIG_UP_ENERYG: number = calculateBodyCost(BIG_UP_BODY);
 // 主要目的是先升级采集者
 export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
 export const BIG_HARVEST_COUNT: number = 2;
-export const BIG_BUILDER_COUNT: number = 3;
-export const BIG_UPGRADE_COUNT: number = 3;
+export const BIG_BUILDER_COUNT: number = 2;
+export const BIG_UPGRADE_COUNT: number = 2;
 // 能量显示
 export const BIG_ENERYG: number = 1000;
-export const BIG_ENERYG_TMP: number = 1250;
+export const BIG_ENERYG_TMP: number = calculateBodyCost(BIG_COMMON_BODY_TMP);
 
 // 您也可以在这里定义其他全局常量，比如 Spawn 的名称
 export const MAIN_SPAWN_NAME: string = 'obsidianlyg';
