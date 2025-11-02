@@ -104,20 +104,60 @@ let minerRole = {
 
         // 采矿模式
         if (mineral) {
-            // 如果不在采矿位置 (Extractor 或 Container 上方)
-            if (!creep.pos.isEqualTo(mineral.pos) && (!container || !creep.pos.isEqualTo(container.pos))) {
-                // 移动到矿物或容器位置
-                const targetPos = container ? container.pos : mineral.pos;
-                creep.moveTo(targetPos, { visualizePathStyle: { stroke: '#ffaa00' } });
-            } else {
-                // 已经在采矿位置，执行开采动作
-                const harvestResult = creep.harvest(mineral);
+            // 确定矿工的采矿目标点（用于移动）
+            let targetForMove: RoomPosition;
 
-                if (harvestResult === ERR_NOT_OWNER) {
-                    creep.say('需要Extractor!');
-                } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES) {
-                    // 矿物已经枯竭，进入冷却期
-                    creep.say('冷却中...');
+            // 优先使用容器作为目标位置，方便 Creep 靠近并将资源存入
+            if (container) {
+                // 目标是容器 (Creep 应该移动到容器旁边的空位)
+                targetForMove = container.pos;
+
+                // 判断 Creep 是否已在容器旁边（距离为 1）
+                const isAtMiningRange = creep.pos.getRangeTo(container) <= 1;
+
+                if (!isAtMiningRange) {
+                    // 移动到目标容器附近
+                    creep.moveTo(targetForMove, { visualizePathStyle: { stroke: '#ffaa00' } });
+                } else {
+                    // 已经在采矿范围内，执行开采动作
+
+                    // 尝试开采矿物（矿物和容器距离为 1，只要在容器旁边，通常就在矿物周围 1 格内）
+                    const harvestResult = creep.harvest(mineral);
+
+                    // 如果采矿成功或处于冷却中，则继续
+                    if (harvestResult === OK || harvestResult === ERR_NOT_ENOUGH_RESOURCES) {
+                        // 如果 Creep 脚下不是容器，将采到的矿物存入容器
+                        if (!creep.pos.isEqualTo(container.pos) && creep.store.getUsedCapacity(mineral.mineralType) > 0) {
+                            creep.transfer(container, mineral.mineralType);
+                        }
+                    } else if (harvestResult === ERR_NOT_IN_RANGE) {
+                        // 偶尔会出现这种情况，比如 Creep 站在容器旁边但矿物在 2 格外（地形非常规），
+                        // 此时应该移动到矿物旁。但通常不发生。
+                        creep.moveTo(mineral.pos, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    } else if (harvestResult === ERR_NOT_OWNER) {
+                        creep.say('需要Extractor!');
+                    }
+                }
+            }
+            // 如果没有容器，目标是矿物本身
+            else {
+                targetForMove = mineral.pos;
+
+                // 判断 Creep 是否已在矿物周围（距离为 1）
+                const isAtMiningRange = creep.pos.getRangeTo(mineral) <= 1;
+
+                if (!isAtMiningRange) {
+                    // 移动到矿物附近
+                    creep.moveTo(targetForMove, { visualizePathStyle: { stroke: '#ffaa00' } });
+                } else {
+                    // 已经在采矿位置，执行开采动作
+                    const harvestResult = creep.harvest(mineral);
+
+                    if (harvestResult === ERR_NOT_OWNER) {
+                        creep.say('需要Extractor!');
+                    } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES) {
+                        creep.say('冷却中...');
+                    }
                 }
             }
         }
