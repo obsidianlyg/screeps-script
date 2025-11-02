@@ -53,18 +53,19 @@ function findSource(creep:Creep) {
                 // 特殊资源 - 特殊人数限制
                 console.log("source.id: " + source.id);
                 console.log("assignedCount: " + assignedCount);
-                let isHarvester = creep.memory.role == "big_harvester" || creep.memory.role == "harvester"
+                let isHarvester = creep.memory.role == "big_harvester" || creep.memory.role == "harvester" || creep.memory.role.startsWith('harvester')
                 if (source.id == 'fd3d07720e87b83' && (assignedCount >= 3 || !isHarvester)) {
                     console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
-                if (source.id == '088407718c7f377' && (assignedCount >= 3)) {
+                if (source.id == '088407718c7f377' && (assignedCount >= 3) && !isHarvester) {
                     console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
-                if (source.id == 'b8e007718c76b6e' && (assignedCount >= 3)) {
+                // 只限制采集者个数
+                if (source.id == 'b8e007718c76b6e' && (assignedCount >= 3)  && !isHarvester) {
                     console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
