@@ -27,6 +27,8 @@ import {
 
 import towerRole from "roles/tower";
 
+import transferOnDeath from "utils/DeathHandler";
+
 import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
@@ -148,7 +150,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const mainRoomBase = Game.rooms[mainRoom];
   const mainRoomSpwan = Game.spawns[mainRoom];
   const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-  minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
+  minerRole.createBySpawn(mainRoom, 1000, 2, minerBody);
 
   // 做个矿工搬运者
   const minerTansBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
@@ -176,7 +178,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
   const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
   const leftRoomBodyTranspost = getBodyByRole(CreepRole.TRANSPORTER, leftRoomLevel);
-  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 4, leftRoomBodyHarvest);
+  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 5, leftRoomBodyHarvest);
   builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
   upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 3, 1, leftRoomBodyUpgrade);
   transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 1, leftRoomBodyTranspost, 'energy')
@@ -186,6 +188,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // 执行任务
    for (let name in Game.creeps) {
       let creep = Game.creeps[name];
+
+      // 临近死亡转移能量
+      if (transferOnDeath(creep)) {
+        continue;
+      }
+
       if (creep.memory.role == 'harvester' || creep.memory.role == 'big_harvester'
         || creep.memory.role == 'harvester' + leftRoom
       ) {

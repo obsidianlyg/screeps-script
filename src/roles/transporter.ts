@@ -160,7 +160,7 @@ let transporterRole = {
             } else if (minerals.length > 0) {
                 // 如果没有容器，直接从矿物源获取（需要矿工先开采）
                 targetSource = minerals[0];
-                creep.say('⛏️ 矿物源');
+                // creep.say('⛏️ 矿物源');
             }
 
             if (targetSource) {
@@ -174,7 +174,7 @@ let transporterRole = {
                     console.log(`${creep.name}: 成功获取 ${mineralType}`);
                 } else if (withdrawResult === ERR_INVALID_TARGET) {
                     // 如果目标是矿物本身而不是容器，需要等待矿工开采
-                    creep.say('⏳ 等待开采');
+                    // creep.say('⏳');
                     // 移动到矿物附近等待
                     creep.moveTo(targetSource, { range: 2 });
                 } else {
