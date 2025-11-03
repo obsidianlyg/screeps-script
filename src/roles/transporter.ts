@@ -373,7 +373,6 @@ let transporterRole = {
 
         // 根据内存中的模式选择运行方式
         const transportMode = creep.memory.transportMode || 'energy';
-
         switch (transportMode) {
             case 'mineral':
                 // 专门搬运矿物模式
@@ -444,7 +443,7 @@ let transporterRole = {
             creep.memory.transportMode === 'mineral'
         );
 
-        const availableEnergy = spawn.store.getUsedCapacity(RESOURCE_ENERGY);
+        const availableEnergy = getSpawnAndExtensionEnergy(spawn.room);
 
         if (mineralTransporters.length < count && availableEnergy >= 600) {
             const newName = `MineralTransporter_${mineralType}_${Game.time}`;
