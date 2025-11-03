@@ -138,13 +138,13 @@ function handleExistingContainer(creep: Creep, container: StructureContainer | S
 
         return true; // 继续处理
     } else {
-        console.log(`${creep.name}: 从container取能量失败，结果=${withdrawResult}`);
+        // console.log(`${creep.name}: 从container取能量失败，结果=${withdrawResult}`);
         creep.memory.targetContainerId = null; // 清除目标
         delete creep.memory.containerLastPosition; // 清除卡住检测
 
         // 如果取能量失败，释放预扣的能量
         releaseContainerEnergy(container.id, creep.store.getFreeCapacity(RESOURCE_ENERGY));
-        console.log(`${creep.name}: 取能量失败，已释放预扣能量`);
+        // console.log(`${creep.name}: 取能量失败，已释放预扣能量`);
 
         return false;
     }
