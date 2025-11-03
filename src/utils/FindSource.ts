@@ -65,13 +65,13 @@ function findSource(creep:Creep) {
                 //     continue;
                 // }
 
-                if (source.id == '088407718c7f377' && (harvestCount >= 3)) {
+                if (source.id == '088407718c7f377' && (harvestCount >= 1)) {
                     // console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
                 // 只限制采集者个数
-                if (source.id == 'b8e007718c76b6e' && (harvestCount >= 3)) {
+                if (source.id == 'b8e007718c76b6e' && (harvestCount >= 1)) {
                     // console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }

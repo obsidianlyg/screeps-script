@@ -18,7 +18,7 @@ import {
     CreepRole,
     CreepLevel,
     getBodyByRole,
-    getLevelByRCL,
+    createBodyParts,
     getLevelByEnergy,
     canAffordBody,
     adjustBodyToEnergy,
@@ -153,9 +153,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
 
   // 做个矿工搬运者
-  const minerTansBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+  const minerTansBody: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
   transporterRole.createMineralTransporter(
                 mainRoomSpwan,
+                minerTansBody,
                 RESOURCE_ZYNTHIUM,
                 'W8N8',
                 'W8N8'
@@ -172,16 +173,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // builderRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
   // upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
 
-  const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
-  // const leftRoomLevel = 3;
-  const leftRoomBodyHarvest = getBodyByRole(CreepRole.HARVESTER, leftRoomLevel)
-  const leftRoomBodyBuild = getBodyByRole(CreepRole.BUILDER, leftRoomLevel)
-  const leftRoomBodyUpgrade = getBodyByRole(CreepRole.UPGRADER, leftRoomLevel)
+  // const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+  const leftRoomLevel = 4;
+  const leftHaConf = {
+    work: 7,
+    carry: 4,
+    move: 1
+  }
+  const leftBuConf = {
+    work: 4,
+    carry: 4,
+    move: 4
+  }
+  const leftUpConf = {
+    work: 7,
+    carry: 4,
+    move: 4
+  }
+  const leftRoomBodyHarvest = createBodyParts(leftHaConf);
+  const leftRoomBodyBuild = createBodyParts(leftBuConf);
+  const leftRoomBodyUpgrade = createBodyParts(leftUpConf);
   const leftRoomBodyTranspost = getBodyByRole(CreepRole.TRANSPORTER, leftRoomLevel);
-  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 5, leftRoomBodyHarvest);
-  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 2, 1, leftRoomBodyBuild);
+  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 2, leftRoomBodyHarvest);
+  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 0, 1, leftRoomBodyBuild);
   upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 3, 1, leftRoomBodyUpgrade);
-  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 1, leftRoomBodyTranspost, 'energy')
+  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 2, leftRoomBodyTranspost, 'energy')
   // tower by leftRoom
   towerRole.run(leftRoomBase);
 

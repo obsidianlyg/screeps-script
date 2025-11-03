@@ -380,19 +380,22 @@ let builderRole = {
                 }
 
                 // 修路
-                let reapirRoadBool = repairRoads(creep);
-                if (reapirRoadBool) {
-                    return;
-                }
-                // 升级 小建造者可以干，大型建造者容易把资源耗光
+                // let reapirRoadBool = repairRoads(creep);
+                // if (reapirRoadBool) {
+                //     return;
+                // }
+                // 升级
                 const controller = creep.room.controller;
-                if (controller && creep.memory.role === 'builder') {
+                if (controller) {
                     creep.say('up');
                     creep.memory.targetConstructionSiteId = null;  // 清除建造目标
                     delete creep.memory._move;  // 清除路径缓存
                     // 移动到 Controller 附近等待新工地
                     if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller, { reusePath: 30, ignoreCreeps: true });
+                        creep.moveTo(controller, { ignoreCreeps: false,  // 正常情况下不穿过creep
+                            maxOps: 1000,
+                            heuristicWeight: 1.2,
+                            range: 1 });
                     }
                 }
             }

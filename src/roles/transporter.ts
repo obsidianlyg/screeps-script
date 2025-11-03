@@ -433,7 +433,7 @@ let transporterRole = {
     /**
      * 创建专门搬运矿物的运输者
      */
-    createMineralTransporter: function(spawn: StructureSpawn, mineralType: ResourceConstant, sourceRoom?: string, targetRoom?: string) {
+    createMineralTransporter: function(spawn: StructureSpawn, body: BodyPartConstant[], mineralType: ResourceConstant, sourceRoom?: string, targetRoom?: string) {
         const spawnName = spawn.name;
         const count = 1; // 矿物运输者通常需要较少数量
 
@@ -450,7 +450,7 @@ let transporterRole = {
 
             console.log(`尝试生成新的矿物运输者: ${newName}`);
 
-            const result = spawn.spawnCreep(CARRIER_BODY, newName, {
+            const result = spawn.spawnCreep(body, newName, {
                 memory: {
                     role: 'transporter' + spawnName,
                     room: spawnName,
