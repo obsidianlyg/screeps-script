@@ -243,6 +243,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
         transporterRole.run(creep);
       }
 
+      if (creep.memory.role == 'transporter' + mainRoom && creep.memory.transportMode == 'mineral') {
+        const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
+        const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
+        transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
+      }
+
       // 志愿者的判断
       if (creep.memory.role == 'builder' + MAIN_SPAWN_NAME && creep.memory.room == leftRoom) {
         builderRole.buildInRoom(creep, leftRoom);

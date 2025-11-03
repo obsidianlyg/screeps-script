@@ -429,6 +429,131 @@ let transporterRole = {
                 break;
         }
     },
+    /**
+     * 从源 ID 提取指定资源，并将其转移到目标 ID。
+     * 兼容处理：如果 sourceId 为 null/undefined，则跳过提取步骤，直接将自身携带的资源转移到 targetId。
+     * * @param creep 执行操作的 Creep 对象。
+     * @param resourceType 要提取和转移的资源类型。
+     * @param sourceId 资源来源的结构/Tombstone/Ruin ID (可选)。
+     * @param targetId 资源接收方的结构/Creep ID。
+     * @returns {boolean} 如果 Creep 正在执行任务（移动、提取或转移），则返回 true；如果任务完成或无法执行，则返回 false。
+     */
+    moveResourceBetweenTargets(
+        creep: Creep,
+        resourceType: ResourceConstant,
+        sourceId: Id<AnyStoreStructure | Tombstone | Ruin> | undefined, // <<< 允许 sourceId 为 undefined
+        targetId: Id<AnyStoreStructure | Creep>
+    ): boolean {
+
+        // 1. 获取目标对象
+        const target = Game.getObjectById(targetId);
+
+        if (!target) {
+            creep.say(`❌ 目标无效`);
+            return false;
+        }
+        // --- 新增逻辑：优先清理非指定资源（“杂物”） ---
+
+        // 找到所有非目标资源
+        const otherResources = Object.keys(creep.store).filter(
+            (res) => (res as ResourceConstant) !== resourceType && creep.store.getUsedCapacity(res as ResourceConstant) > 0
+        ) as ResourceConstant[];
+
+        // 如果存在非指定资源，则进入【清理模式】
+        if (otherResources.length > 0) {
+            const resourceToClear = otherResources[0]; // 每次只清理一种
+
+            // 检查目标是否有空间
+            if ('store' in target && target.store.getFreeCapacity(resourceToClear) === 0) {
+                creep.say(`杂物满`);
+                // 如果目标满了，就只能等待或切换目标，这里我们选择返回 false
+                return false;
+            }
+
+            const clearResult = creep.transfer(target, resourceToClear);
+
+            if (clearResult === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, { visualizePathStyle: { stroke: '#ff00ff' } }); // 使用不同颜色路径区分清理任务
+                return true;
+            } else if (clearResult === OK) {
+                creep.say(`清${resourceToClear}`);
+                return true; // 继续清理其他资源
+            } else {
+                creep.say(`❌ 清理E${clearResult}`);
+                return false;
+            }
+        }
+
+        // 2. 判断当前状态：是该提取还是该转移？
+        const isCarryingResource = creep.store.getUsedCapacity(resourceType) > 0;
+        const isFull = creep.store.getFreeCapacity() === 0;
+
+        // --- A. 执行转移 (如果 Creep 已经有资源 或 sourceId 为空) ---
+        // 如果 isCarryingResource 为 true，或者 sourceId 不存在 (代表我们只处理库存)，则进入转移阶段
+        if (isCarryingResource || !sourceId) {
+
+            // **如果 Creep 当前没有要转移的资源，且 sourceId 也为空，则任务完成**
+            if (!isCarryingResource && !sourceId) {
+                creep.say("清空完毕");
+                return false;
+            }
+
+            // 检查目标是否有空间
+            if ('store' in target) {
+                const freeCapacity = target.store.getFreeCapacity(resourceType);
+                if (freeCapacity !== null && freeCapacity === 0) {
+                    creep.say("目标满");
+                    return false;
+                }
+            }
+
+            const transferResult = creep.transfer(target, resourceType);
+
+            if (transferResult === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                return true;
+            } else if (transferResult === OK) {
+                creep.say(`➡️ ${resourceType}`);
+                return true;
+            } else {
+                creep.say(`❌ 存E${transferResult}`);
+                return false;
+            }
+        }
+
+        // --- B. 执行提取 (sourceId 存在，且 Creep 没有要转移的资源) ---
+        else {
+            // 确保 sourceId 存在
+            const source = Game.getObjectById(sourceId);
+
+            if (!source) {
+                creep.say("❌ 源ID无效");
+                return false;
+            }
+
+            // 检查源是否有足够的资源
+            if ('store' in source) {
+                const amountAvailable = source.store.getUsedCapacity(resourceType);
+                if (amountAvailable === 0) {
+                    creep.say("源空");
+                    return false;
+                }
+            }
+
+            const withdrawResult = creep.withdraw(source, resourceType);
+
+            if (withdrawResult === ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+                return true;
+            } else if (withdrawResult === OK) {
+                creep.say(`⬅️ ${resourceType}`);
+                return true;
+            } else {
+                creep.say(`❌ 取E${withdrawResult}`);
+                return false;
+            }
+        }
+    },
 
     /**
      * 创建专门搬运矿物的运输者
