@@ -62,7 +62,7 @@ export function setupMineralTransport(spawnName: string, sourceRoomName?: string
     console.log(`源房间: ${sourceRoom.name}, 目标房间: ${targetRoom.name}`);
 
     // 创建专门的矿物运输者
-    transporterRole.createMineralTransporter(spawn, mineralType, sourceRoom.name, targetRoom.name);
+    // transporterRole.createMineralTransporter(spawn, mineralType, sourceRoom.name, targetRoom.name);
 }
 
 /**

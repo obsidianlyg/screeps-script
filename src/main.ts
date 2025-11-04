@@ -33,6 +33,9 @@ import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
 
+import mainRoomRole from 'room/MainRoom';
+import w9n8RoomRole from 'room/W9N8Room';
+
 declare global {
   /*
     Example types, expand on these or remove them and add your own.
@@ -124,88 +127,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  const base = Game.spawns[MAIN_SPAWN_NAME];
-
-  // 创建
-
-    // 巨型采集者
-  harvesterRole.createBig();
-  upgradeRole.createBig();
-  builderRole.createBig();
-
-  // 基础搬运工
-  const mainTranConf = {
-    carry: 8,
-    move: 4
-  }
-  const mainBodyTrans= createBodyParts(mainTranConf);
-  transporterRole.createBySpawn(MAIN_SPAWN_NAME, calculateBodyCost(mainBodyTrans), 3, mainBodyTrans, 'energy')
-
-  // Claimer 创建（需要指定目标房间）
-  // claimerRole.create('W9N8');
-
-  // tower 执行
-  towerRole.run(base.room);
-
-  // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
   const mainRoom = MAIN_SPAWN_NAME;
-  const mainRoomBase = Game.rooms[mainRoom];
-  const mainRoomSpwan = Game.spawns[mainRoom];
-  const minerBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
-  minerRole.createBySpawn(mainRoom, 1000, 1, minerBody);
+  mainRoomRole.create()
 
-  // 做个矿工搬运者
-  const minerTansBody: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
-  transporterRole.createMineralTransporter(
-                mainRoomSpwan,
-                minerTansBody,
-                RESOURCE_ZYNTHIUM,
-                'W8N8',
-                'W8N8'
-            );
-
-
-
-  // 小基地的特殊配置
   const leftRoom = 'W9N8'
-  const leftRoomBase = Game.rooms[leftRoom];
-  const leftRoomSpwan = Game.spawns[leftRoom];
-   // 创建志愿者
-   const VBody: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
-  // builderRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
-  // upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
+  w9n8RoomRole.create()
 
-  // const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
-  const leftRoomLevel = 4;
-  const leftHaConf = {
-    work: 7,
-    carry: 4,
-    move: 1
-  }
-  const leftBuConf = {
-    work: 4,
-    carry: 4,
-    move: 4
-  }
-  const leftUpConf = {
-    work: 7,
-    carry: 4,
-    move: 4
-  }
-  const leftTranConf = {
-    carry: 3,
-    move: 3
-  }
-  const leftRoomBodyHarvest = createBodyParts(leftHaConf);
-  const leftRoomBodyBuild = createBodyParts(leftBuConf);
-  const leftRoomBodyUpgrade = createBodyParts(leftUpConf);
-  const leftRoomBodyTranspost = createBodyParts(leftTranConf);
-  harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 2, leftRoomBodyHarvest);
-  builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 0, 1, leftRoomBodyBuild);
-  upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 3, 1, leftRoomBodyUpgrade);
-  transporterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyTranspost), 2, leftRoomBodyTranspost, 'energy')
-  // tower by leftRoom
-  towerRole.run(leftRoomBase);
+
 
   // 执行任务
    for (let name in Game.creeps) {
@@ -216,39 +144,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
         continue;
       }
 
-      if (creep.memory.role == 'harvester' || creep.memory.role == 'big_harvester'
-        || creep.memory.role == 'harvester' + leftRoom
-      ) {
+      if (creep.memory.role.startsWith('harvester') || creep.memory.role == 'big_harvester') {
         harvesterRole.run(creep);
       }
 
-      if (creep.memory.role == 'upgrader' || creep.memory.role == 'big_upgrader'
-        || creep.memory.role == 'upgrader' + leftRoom
-      ) {
+      if (creep.memory.role.startsWith('upgrader') || creep.memory.role == 'big_upgrader') {
         upgradeRole.run(creep);
       }
 
       if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder'
-        || creep.memory.role == 'builder' + leftRoom
+        || creep.memory.role.startsWith('builder')
       ) {
         builderRole.run(creep);
       }
 
       // 矿工
-      if (creep.memory.role == 'miner' + mainRoom) {
+      if (creep.memory.role.startsWith('miner')) {
         minerRole.run(creep);
       }
 
       // 搬运
-      if (creep.memory.role == 'transporter' || creep.memory.role == 'transporter' + leftRoom) {
+      if (creep.memory.role.startsWith('transporter')) {
         transporterRole.run(creep);
       }
 
       // 特殊搬运者
-      if (creep.memory.role == 'transporter' + mainRoom) {
-        transporterRole.run(creep);
-      }
-
       if (creep.memory.role == 'transporter' + mainRoom && creep.memory.transportMode == 'mineral') {
         const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
         const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;

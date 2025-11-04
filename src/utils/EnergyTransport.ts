@@ -302,3 +302,72 @@ export function needsEnergyTransport(creep: Creep): boolean {
     const targets = findEnergyTargets(creep);
     return targets.length > 0;
 }
+
+/**
+ * 寻找能量源（优先选择存储能量最多的container，存储量相同时选择最近的）
+ * @param creep 需要能量的 creep
+ * @returns 能量源对象，如果没有则返回 null
+ */
+export function findEnergySourceByStoredEnergy(creep: Creep): StructureContainer | StructureStorage | null {
+    // 分别查找 container 和 storage
+    const containers = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            if (structure.structureType !== STRUCTURE_CONTAINER) {
+                return false;
+            }
+            const container = structure as StructureContainer;
+            return container.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
+        }
+    }) as StructureContainer[];
+
+    const storages = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            if (structure.structureType !== STRUCTURE_STORAGE) {
+                return false;
+            }
+            const storage = structure as StructureStorage;
+            return storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
+        }
+    }) as StructureStorage[];
+
+    // 优先选择存储能量最多的 container
+    if (containers.length > 0) {
+        // 按存储能量降序排序（存储量多的在前）
+        containers.sort((a, b) => {
+            const energyA = a.store.getUsedCapacity(RESOURCE_ENERGY);
+            const energyB = b.store.getUsedCapacity(RESOURCE_ENERGY);
+            return energyB - energyA; // 降序排序
+        });
+
+        // 考虑距离因素：在存储量相近的情况下选择距离更近的
+        const bestContainer = containers.reduce((best, current) => {
+            const energyBest = best.store.getUsedCapacity(RESOURCE_ENERGY);
+            const energyCurrent = current.store.getUsedCapacity(RESOURCE_ENERGY);
+
+            // 如果当前container存储量明显多于最好的，选择当前的
+            if (energyCurrent > energyBest * 1.1) { // 10%以上的存储量优势
+                return current;
+            }
+            // 如果存储量相近（10%以内），选择距离更近的
+            else if (Math.abs(energyCurrent - energyBest) <= energyBest * 0.1) {
+                const distanceBest = creep.pos.getRangeTo(best.pos);
+                const distanceCurrent = creep.pos.getRangeTo(current.pos);
+                return distanceCurrent < distanceBest ? current : best;
+            }
+            // 否则保持原来的选择（存储量更多的）
+            else {
+                return best;
+            }
+        });
+
+        return bestContainer;
+    }
+
+    // 如果没有 container，选择 storage
+    if (storages.length > 0) {
+        return storages[0]; // 房间内通常只有一个 storage
+    }
+
+    // 如果都没有，返回 null
+    return null;
+}

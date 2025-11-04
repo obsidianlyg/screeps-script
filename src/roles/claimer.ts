@@ -44,6 +44,42 @@ let claimerRole = {
             }
         }
     },
+    createBySourceRoom: function(sourceRoomName: string, count: number,targetRoomName?: string) {
+        const base = Game.spawns[sourceRoomName];
+        if (!base) {
+            console.log("找不到 Spawn: " + sourceRoomName);
+            return;
+        }
+
+        // 统计当前 claimer 数量
+        const claimers = _.filter(Game.creeps, (creep) => creep.memory.role === 'claimer');
+
+        // 如果数量不足且有明确的目标房间，创建新的 claimer
+        if (claimers.length < count && targetRoomName) {
+            const newName = 'Claimer' + Game.time;
+
+            console.log(`尝试生成新的 Claimer: ${newName}，目标房间: ${targetRoomName}`);
+
+            const result = base.spawnCreep(CLAIMER_BODY, newName, {
+                memory: {
+                    role: 'claimer',
+                    room: targetRoomName, // 目标房间
+                    targetRoom: targetRoomName,
+                    working: false
+                }
+            });
+
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 claimer。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+            } else {
+                console.log(`生成 Claimer 时发生错误: ${result}`);
+            }
+        }
+    },
 
     run: function(creep: Creep) {
         // 获取目标房间
