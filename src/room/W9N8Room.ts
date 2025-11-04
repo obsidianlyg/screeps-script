@@ -36,6 +36,8 @@ const subRoom = {
     // upgradeRole.createVolunteerBySpawn(MAIN_SPAWN_NAME, leftRoom, 1000, 2, VBody);
 
     // const leftRoomLevel = getLevelByRCL(leftRoomBase.controller?.level || 1);
+
+    // body
     const harvestConf = {
       work: 7,
       carry: 4,
@@ -55,14 +57,20 @@ const subRoom = {
       carry: 8,
       move: 4
     }
+    // creep数量
+    const harvestCount = 2;
+    const buildCount = 2;
+    const upCount = 3;
+    const transCount = 2;
+
     const harvestBody = createBodyParts(harvestConf);
     const buildBody = createBodyParts(buildConf);
     const upBody = createBodyParts(upConf);
     const transBody = createBodyParts(tranConf);
-    harvesterRole.createBySpawn(roomName, calculateBodyCost(harvestBody), 2, harvestBody);
-    builderRole.createBySpawn(roomName, calculateBodyCost(buildBody), 0, 1, buildBody);
-    upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), 3, 1, upBody);
-    transporterRole.createBySpawn(roomName, calculateBodyCost(transBody), 2, transBody, 'energy')
+    harvesterRole.createBySpawn(roomName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
+    builderRole.createBySpawn(roomName, calculateBodyCost(buildBody), buildCount, harvestCount, buildBody);
+    upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
+    transporterRole.createBySpawn(roomName, calculateBodyCost(transBody), transCount, transBody, 'energy')
     towerRole.run(room);
   }
 }
