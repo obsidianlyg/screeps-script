@@ -134,10 +134,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   builderRole.createBig();
 
   // 基础搬运工
-  // harvesterRole.create();
-  // upgradeRole.create();
-  // builderRole.create();
-  transporterRole.create();
+  const mainTranConf = {
+    carry: 8,
+    move: 4
+  }
+  const mainBodyTrans= createBodyParts(mainTranConf);
+  transporterRole.createBySpawn(MAIN_SPAWN_NAME, calculateBodyCost(mainBodyTrans), 3, mainBodyTrans, 'energy')
 
   // Claimer 创建（需要指定目标房间）
   // claimerRole.create('W9N8');
@@ -190,10 +192,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     carry: 4,
     move: 4
   }
+  const leftTranConf = {
+    carry: 3,
+    move: 3
+  }
   const leftRoomBodyHarvest = createBodyParts(leftHaConf);
   const leftRoomBodyBuild = createBodyParts(leftBuConf);
   const leftRoomBodyUpgrade = createBodyParts(leftUpConf);
-  const leftRoomBodyTranspost = getBodyByRole(CreepRole.TRANSPORTER, leftRoomLevel);
+  const leftRoomBodyTranspost = createBodyParts(leftTranConf);
   harvesterRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyHarvest), 2, leftRoomBodyHarvest);
   builderRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyBuild), 0, 1, leftRoomBodyBuild);
   upgradeRole.createBySpawn(leftRoom, calculateBodyCost(leftRoomBodyUpgrade), 3, 1, leftRoomBodyUpgrade);
@@ -246,7 +252,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (creep.memory.role == 'transporter' + mainRoom && creep.memory.transportMode == 'mineral') {
         const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
         const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
-        transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
       }
 

@@ -83,6 +83,23 @@ let transporterRole = {
             } else {
                 console.log(`生成 Transporter 时发生错误: ${result}`);
             }
+        } else if (transporters.length == 0 && getSpawnAndExtensionEnergy(base.room) <= 300) {
+            // 紧急预案 - 能源循环断裂做的备选方案
+            const newName = 'Transporter' + Game.time;
+
+            const MINI_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+
+            console.log(`尝试生成新的 Transporter: ${newName}`);
+            const result = base.spawnCreep(MINI_BODY, newName, {
+                memory: {
+                    role: 'transporter' + spawnName,
+                    room: spawnName,
+                    working: false,
+                    transportTarget: null,
+                    isGettingEnergy: false,
+                    transportMode: modeStr
+                }
+            });
         }
     },
 
