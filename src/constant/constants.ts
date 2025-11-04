@@ -44,7 +44,8 @@ export const BUILDER_COUNT: number = 1;
 /**
  * 基础 Transporter 的身体部件配置
  */
-export const CARRIER_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+// export const CARRIER_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE];
+export const CARRIER_BODY: BodyPartConstant[] = [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
 
 /**
  * Transporter 的目标数量
@@ -80,7 +81,7 @@ export const BIG_UP_ENERYG: number = calculateBodyCost(BIG_UP_BODY);
 export const BIG_COMMON_BODY_TMP: BodyPartConstant[] = [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
 export const BIG_HARVEST_COUNT: number = 2;
 export const BIG_BUILDER_COUNT: number = 0;
-export const BIG_UPGRADE_COUNT: number = 1;
+export const BIG_UPGRADE_COUNT: number = 2;
 // 能量显示
 export const BIG_ENERYG: number = 1000;
 export const BIG_ENERYG_TMP: number = calculateBodyCost(BIG_COMMON_BODY_TMP);
