@@ -158,6 +158,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
         continue;
       }
 
+      if (creep.memory.role.startsWith('harvester') && creep.memory.room == w9n9) {
+        harvesterRole.harvestInRoom(creep, w9n9);
+        continue;
+      }
+
       if (creep.memory.role.startsWith('harvester') || creep.memory.role == 'big_harvester') {
         harvesterRole.run(creep);
       }

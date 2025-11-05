@@ -175,6 +175,29 @@ let harvestRole = {
             }
         }
     },
+    // 指定房间建造方法
+    harvestInRoom: function(creep: Creep, targetRoomName: string) {
+        // 检查目标房间是否可见
+        if (!Game.rooms[targetRoomName]) {
+            console.log(`${creep.name}: 目标房间 ${targetRoomName} 不可见，无法建造`);
+        }
+
+        const targetRoom = Game.rooms[targetRoomName];
+
+        // 检查 creep 是否在目标房间
+        if (creep.room.name !== targetRoomName) {
+            // 移动到目标房间
+            creep.say('🚶 移动中');
+            const result = creep.moveTo(new RoomPosition(25, 25, targetRoomName), {
+                visualizePathStyle: { stroke: '#ffff00ff' },
+                reusePath: 50
+            });
+            return;
+        }
+
+        // 运行creeper特定内容
+        this.run(creep)
+    },
 // 移除不使用的参数 'creeps'
     run: function(creep:Creep) {
         // --- 状态切换逻辑：通过内存管理 Creep 状态 ---

@@ -79,8 +79,15 @@ const subRoom = {
       carry: 4,
       move: 4
     }
+    const haConfV = {
+      work: 6,
+      carry: 6,
+      move: 6
+    }
+    const haBodyV = createBodyParts(haConfV);
     const buildBodyV = createBodyParts(buildConfV);
     const upBodyV = createBodyParts(upConfV);
+    harvesterRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(haBodyV), 2, haBodyV);
     builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
     upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
   }
