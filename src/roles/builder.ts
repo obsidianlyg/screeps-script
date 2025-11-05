@@ -76,7 +76,7 @@ let builderRole = {
         }
 
         // 加入限制以采集者为主，采集者数量不足优先创建采集者
-        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName);
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName && creep.memory.room == spawnName);
         if (harvesters.length < harvesterCount) {
             return;
         }
