@@ -25,7 +25,7 @@ import {
 
 import towerRole from "roles/tower";
 
-const roomName = 'W9N8';
+const roomName = 'W9N9';
 const subRoom = {
   create: function () {
     const room = Game.rooms[roomName];
@@ -33,29 +33,29 @@ const subRoom = {
 
     // body
     const harvestConf = {
-      work: 7,
-      carry: 4,
+      work: 1,
+      carry: 1,
       move: 1
     }
     const buildConf = {
-      work: 4,
-      carry: 4,
-      move: 4
+      work: 1,
+      carry: 1,
+      move: 1
     }
     const upConf = {
-      work: 7,
-      carry: 4,
-      move: 4
+      work: 1,
+      carry: 1,
+      move: 1
     }
     const tranConf = {
-      carry: 8,
-      move: 4
+      carry: 2,
+      move: 2
     }
     // creep数量
-    const harvestCount = 2;
-    const buildCount = 2;
-    const upCount = 2;
-    const transCount = 3;
+    const harvestCount = 1;
+    const buildCount = 1;
+    const upCount = 1;
+    const transCount = 0;
 
     const harvestBody = createBodyParts(harvestConf);
     const buildBody = createBodyParts(buildConf);
@@ -67,22 +67,6 @@ const subRoom = {
     transporterRole.createBySpawn(roomName, calculateBodyCost(transBody), transCount, transBody, 'energy')
     towerRole.run(room);
 
-
-    // 志愿者
-    const buildConfV = {
-      work: 4,
-      carry: 4,
-      move: 4
-    }
-    const upConfV = {
-      work: 4,
-      carry: 4,
-      move: 4
-    }
-    const buildBodyV = createBodyParts(buildConfV);
-    const upBodyV = createBodyParts(upConfV);
-    builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
-    upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
   }
 }
 

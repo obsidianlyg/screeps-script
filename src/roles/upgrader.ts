@@ -79,7 +79,7 @@ let upgradeRole = {
         }
 
         // 统计当前 upgrader 数量
-        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader' + spawnName);
+        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader' + spawnName && creep.memory.room == spawnName);
 
         // 如果数量不足
         if (upgraders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
@@ -120,7 +120,7 @@ let upgradeRole = {
         }
 
         // 统计当前 upgrader 数量
-        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader' + originName);
+        const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader' + originName && creep.memory.room == targetName);
 
         // 如果数量不足
         if (upgraders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {

@@ -35,6 +35,7 @@ import {
 
 import mainRoomRole from 'room/MainRoom';
 import w9n8RoomRole from 'room/W9N8Room';
+import w9n9RoomRole from 'room/W9N9Room';
 
 declare global {
   /*
@@ -133,6 +134,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const leftRoom = 'W9N8'
   w9n8RoomRole.create()
 
+  const w9n9 = 'W9N9'
+  // w9n9RoomRole.create();
 
 
   // 执行任务
@@ -141,6 +144,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       // 临近死亡转移能量
       if (transferOnDeath(creep)) {
+        continue;
+      }
+
+      // 志愿者的判断
+      if (creep.memory.role.startsWith('builder') && creep.memory.room == w9n9) {
+        builderRole.buildInRoom(creep, w9n9);
+        continue;
+      }
+
+      if (creep.memory.role.startsWith('upgrader') && creep.memory.room == w9n9) {
+        upgradeRole.upgradeInRoom(creep, w9n9);
         continue;
       }
 
@@ -176,14 +190,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
       }
 
-      // 志愿者的判断
-      if (creep.memory.role == 'builder' + MAIN_SPAWN_NAME && creep.memory.room == leftRoom) {
-        builderRole.buildInRoom(creep, leftRoom);
-      }
 
-      if (creep.memory.role == 'upgrader' + MAIN_SPAWN_NAME && creep.memory.room == leftRoom) {
-        upgradeRole.upgradeInRoom(creep, leftRoom);
-      }
 
       // 占领
       if (creep.memory.role == 'claimer') {

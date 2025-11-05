@@ -82,7 +82,7 @@ let builderRole = {
         }
 
         // 统计当前 Harvester 数量
-        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + spawnName);
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + spawnName && creep.memory.room == spawnName);
 
         // 如果数量不足
         if (builders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
@@ -123,7 +123,7 @@ let builderRole = {
         }
 
         // 统计当前 Harvester 数量
-        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + originName);
+        const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder' + originName && creep.memory.room == targetName);
 
         // 如果数量不足
         if (builders.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
@@ -380,10 +380,10 @@ let builderRole = {
                 }
 
                 // 修路
-                // let reapirRoadBool = repairRoads(creep);
-                // if (reapirRoadBool) {
-                //     return;
-                // }
+                let reapirRoadBool = repairRoads(creep);
+                if (reapirRoadBool) {
+                    return;
+                }
                 // 升级
                 const controller = creep.room.controller;
                 if (controller) {

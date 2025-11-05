@@ -43,7 +43,7 @@ const mainRoom = {
     harvesterRole.createBySpawn(roomName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
 
     // 升级者
-    const upCount = 1;
+    const upCount = 2;
     const upConf = {
       work: 6,
       carry: 4,
@@ -53,7 +53,7 @@ const mainRoom = {
     upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
 
     // 建造者
-    const buildCount = 1;
+    const buildCount = 2;
     const buildConf = {
       work: 4,
       carry: 4,
@@ -71,18 +71,6 @@ const mainRoom = {
     const mainBodyTrans= createBodyParts(mainTranConf);
     transporterRole.createBySpawn(roomName, calculateBodyCost(mainBodyTrans), transCount, mainBodyTrans, 'energy')
 
-    // Claimer 创建（需要指定目标房间）
-    // claimerRole.create('W9N8');
-    // claimerRole.createBySourceRoom('W9N8', 1, 'W9N9');
-
-    // tower 执行
-    towerRole.run(base.room);
-
-    // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
-    const mainRoom = roomName;
-    const mainRoomBase = Game.rooms[mainRoom];
-    const mainRoomSpwan = Game.spawns[mainRoom];
-
     // 矿工
     const minerCount = 1;
     const minerConf = {
@@ -93,6 +81,16 @@ const mainRoom = {
     const minerBody: BodyPartConstant[] = createBodyParts(minerConf);
     minerRole.createBySpawn(roomName, calculateBodyCost(minerBody), minerCount, minerBody);
 
+    // Claimer 创建（需要指定目标房间）
+    // claimerRole.create('W9N8');
+    // claimerRole.createBySourceRoom('W9N8', 1, 'W9N9');
+
+    // tower 执行
+    towerRole.run(base.room);
+
+    // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
+    const mainRoomSpwan = Game.spawns[roomName];
+
     // 做个矿工搬运者
     const minerTansBody: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
     transporterRole.createMineralTransporter(
@@ -102,7 +100,24 @@ const mainRoom = {
                   'W8N8',
                   'W8N8'
               );
+
+    // 志愿者
+    const buildConfV = {
+      work: 4,
+      carry: 4,
+      move: 4
     }
+    const upConfV = {
+      work: 4,
+      carry: 4,
+      move: 4
+    }
+    const buildBodyV = createBodyParts(buildConfV);
+    const upBodyV = createBodyParts(upConfV);
+    builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
+    upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
+
+  }
 }
 
 export default mainRoom;

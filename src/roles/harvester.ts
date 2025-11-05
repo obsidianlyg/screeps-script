@@ -63,7 +63,7 @@ let harvestRole = {
         }
 
         // 统计当前 Harvester 数量
-        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName);
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + spawnName && creep.memory.room == spawnName);
 
         // 如果数量不足
         if (harvesters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
@@ -103,7 +103,7 @@ let harvestRole = {
         }
 
         // 统计当前 Harvester 数量
-        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + originName);
+        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' + originName && creep.memory.room == targetName);
 
         // 如果数量不足
         if (harvesters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
