@@ -54,7 +54,7 @@ const subRoom = {
     // creep数量
     const harvestCount = 2;
     const buildCount = 2;
-    const upCount = 2;
+    const upCount = 3;
     const transCount = 3;
 
     const harvestBody = createBodyParts(harvestConf);
@@ -69,27 +69,52 @@ const subRoom = {
 
 
     // 志愿者
-    const buildConfV = {
-      work: 4,
-      carry: 4,
-      move: 4
+    // const buildConfV = {
+    //   work: 4,
+    //   carry: 4,
+    //   move: 4
+    // }
+    // const upConfV = {
+    //   work: 4,
+    //   carry: 4,
+    //   move: 4
+    // }
+    // const haConfV = {
+    //   work: 6,
+    //   carry: 6,
+    //   move: 6
+    // }
+    // const haBodyV = createBodyParts(haConfV);
+    // const buildBodyV = createBodyParts(buildConfV);
+    // const upBodyV = createBodyParts(upConfV);
+    // harvesterRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(haBodyV), 2, haBodyV);
+    // builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
+    // upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
+
+        // 矿工
+    const minerCount = 1;
+    const minerConf = {
+      work: 8,
+      carry: 1,
+      move: 3
     }
-    const upConfV = {
-      work: 4,
-      carry: 4,
-      move: 4
-    }
-    const haConfV = {
-      work: 6,
-      carry: 6,
-      move: 6
-    }
-    const haBodyV = createBodyParts(haConfV);
-    const buildBodyV = createBodyParts(buildConfV);
-    const upBodyV = createBodyParts(upConfV);
-    harvesterRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(haBodyV), 2, haBodyV);
-    builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
-    upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
+    const minerBody: BodyPartConstant[] = createBodyParts(minerConf);
+    minerRole.createBySpawn(roomName, calculateBodyCost(minerBody), minerCount, minerBody);
+
+
+    // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
+    const mainRoomSpwan = Game.spawns[roomName];
+
+    // 做个矿工搬运者
+    const minerTansBody: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
+    transporterRole.createMineralTransporter(
+                  mainRoomSpwan,
+                  minerTansBody,
+                  RESOURCE_UTRIUM,
+                  'W9N8',
+                  'W9N8'
+              );
+
   }
 }
 

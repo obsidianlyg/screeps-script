@@ -33,29 +33,29 @@ const subRoom = {
 
     // body
     const harvestConf = {
-      work: 1,
-      carry: 1,
-      move: 1
+       work: 6,
+      carry: 4,
+      move: 4
     }
     const buildConf = {
-      work: 1,
-      carry: 1,
-      move: 1
+      work: 4,
+      carry: 4,
+      move: 4
     }
     const upConf = {
-      work: 1,
-      carry: 1,
-      move: 1
+      work: 7,
+      carry: 6,
+      move: 4
     }
     const tranConf = {
-      carry: 2,
-      move: 2
+      carry: 8,
+      move: 4
     }
     // creep数量
-    const harvestCount = 1;
-    const buildCount = 1;
-    const upCount = 1;
-    const transCount = 0;
+    const harvestCount = 2;
+    const buildCount = 2;
+    const upCount = 3;
+    const transCount = 3;
 
     const harvestBody = createBodyParts(harvestConf);
     const buildBody = createBodyParts(buildConf);

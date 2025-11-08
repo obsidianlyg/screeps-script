@@ -20,10 +20,9 @@ let minerRole = {
         }
 
         // 统计当前 Harvester 数量
-        const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'miner' + spawnName);
-
+        const miners = _.filter(Game.creeps, (creep) => creep.memory.role === 'miner' + spawnName);
         // 如果数量不足
-        if (harvesters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
+        if (miners.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
 
             // 生成一个唯一的名字
             const newName = 'miner_' + Game.time; // 使用当前时间戳创建唯一名字

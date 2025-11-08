@@ -46,7 +46,44 @@ let transporterRole = {
             }
         }
     },
+    createTemp: function(spawnName: string, energyLimit: number, count: number, body: BodyPartConstant[], modeStr: string) {
+        const base = Game.spawns[spawnName];
+        if (!base) {
+            console.log("找不到 Spawn: " + spawnName);
+            return;
+        }
 
+        // 统计当前 transporter 数量
+        const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporterTemp');
+
+        // 如果数量不足且能量足够，创建新的 transporter
+        if (transporters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
+            const newName = 'Transporter' + Game.time;
+
+            console.log(`尝试生成新的 Transporter: ${newName}`);
+
+            const result = base.spawnCreep(body, newName, {
+                memory: {
+                    role: 'transporterTemp',
+                    room: spawnName,
+                    working: false,
+                    transportTarget: null,
+                    isGettingEnergy: false,
+                    transportMode: modeStr
+                }
+            });
+
+            if (result === OK) {
+                console.log(`成功将 ${newName} 加入到生成队列。`);
+            } else if (result === ERR_NOT_ENOUGH_ENERGY) {
+                console.log(`能量不足，无法生成 transporter。`);
+            } else if (result === ERR_BUSY) {
+                // 正常情况，Spawn 正在忙碌
+            } else {
+                console.log(`生成 Transporter 时发生错误: ${result}`);
+            }
+        }
+    },
     createBySpawn: function(spawnName: string, energyLimit: number, count: number, body: BodyPartConstant[], modeStr: string) {
         const base = Game.spawns[spawnName];
         if (!base) {

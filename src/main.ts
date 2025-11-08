@@ -128,14 +128,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  const mainRoom = MAIN_SPAWN_NAME;
+  const mainSpawn = MAIN_SPAWN_NAME;
   mainRoomRole.create()
 
   const leftRoom = 'W9N8'
   w9n8RoomRole.create()
 
   const w9n9 = 'W9N9'
-  // w9n9RoomRole.create();
+  w9n9RoomRole.create();
 
 
   // 执行任务
@@ -144,6 +144,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       // 临近死亡转移能量
       if (transferOnDeath(creep)) {
+        continue;
+      }
+
+      // 特殊搬运者
+      if (creep.memory.role == 'transporterTemp' && creep.memory.room == mainSpawn) {
+        const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
+        const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
         continue;
       }
 
@@ -186,16 +195,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (creep.memory.role.startsWith('transporter')) {
         transporterRole.run(creep);
       }
-
-      // 特殊搬运者
-      if (creep.memory.role == 'transporter' + mainRoom && creep.memory.transportMode == 'mineral') {
-        const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
-        const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
-        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
-        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
-      }
-
-
 
       // 占领
       if (creep.memory.role == 'claimer') {
