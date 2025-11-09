@@ -12,6 +12,10 @@ import claimerRole from "roles/claimer";
 
 import minerRole from "roles/miner";
 
+import attackerRole from "roles/attacker";
+
+import healerRole from "roles/healer";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
@@ -109,6 +113,15 @@ declare global {
     roomCallback?: ((roomName: string) => CostMatrix | boolean) | undefined;
 }
 
+interface CreepParam {
+    role: string;
+    conf: Record<string, number>;
+    count: number;
+    room: string;
+    spawn: string;
+    modeStr?: string;
+}
+
   // Syntax for adding proprties to `global` (ex "global.log")
   namespace NodeJS {
     interface Global {
@@ -137,6 +150,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const w9n9 = 'W9N9'
   w9n9RoomRole.create();
 
+  const w6n8 = 'W6N8'
+
 
   // 执行任务
    for (let name in Game.creeps) {
@@ -151,24 +166,24 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (creep.memory.role == 'transporterTemp' && creep.memory.room == mainSpawn) {
         const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
         const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
-        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
         continue;
       }
 
       // 志愿者的判断
-      if (creep.memory.role.startsWith('builder') && creep.memory.room == w9n9) {
-        builderRole.buildInRoom(creep, w9n9);
+      if (creep.memory.role.startsWith('builder') && creep.memory.room == w6n8) {
+        builderRole.buildInRoom(creep, w6n8);
         continue;
       }
 
-      if (creep.memory.role.startsWith('upgrader') && creep.memory.room == w9n9) {
-        upgradeRole.upgradeInRoom(creep, w9n9);
+      if (creep.memory.role.startsWith('upgrader') && creep.memory.room == w6n8) {
+        upgradeRole.upgradeInRoom(creep, w6n8);
         continue;
       }
 
-      if (creep.memory.role.startsWith('harvester') && creep.memory.room == w9n9) {
-        harvesterRole.harvestInRoom(creep, w9n9);
+      if (creep.memory.role.startsWith('harvester') && creep.memory.room == w6n8) {
+        harvesterRole.harvestInRoom(creep, w6n8);
         continue;
       }
 
@@ -199,6 +214,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // 占领
       if (creep.memory.role == 'claimer') {
         claimerRole.run(creep);
+      }
+
+      // 攻击者
+      if (creep.memory.role.includes('attacker')) {
+        attackerRole.run(creep);
+      }
+      // 治疗者
+      if (creep.memory.role.includes('healer')) {
+        healerRole.run(creep);
       }
    }
 

@@ -10,6 +10,9 @@ import claimerRole from "roles/claimer";
 
 import minerRole from "roles/miner";
 
+import attackerRole from "roles/attacker";
+import healerRole from "roles/healer";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
@@ -25,10 +28,13 @@ import {
 
 import towerRole from "roles/tower";
 
-const roomName = 'obsidianlyg';
+import creepCreate from "utils/CreepCreate";
+
+const spwanName = 'obsidianlyg';
+const room = 'W8N8';
 const mainRoom = {
   create: function () {
-    const base = Game.spawns[roomName];
+    const base = Game.spawns[spwanName];
 
     // 创建
 
@@ -40,17 +46,17 @@ const mainRoom = {
       move: 4
     }
     const harvestBody = createBodyParts(harvestConf);
-    harvesterRole.createBySpawn(roomName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
+    harvesterRole.createBySpawn(spwanName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
 
     // 升级者
     const upCount = 3;
     const upConf = {
-      work: 6,
-      carry: 4,
+      work: 7,
+      carry: 6,
       move: 5
     }
     const upBody = createBodyParts(upConf);
-    upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
+    upgradeRole.createBySpawn(spwanName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
 
     // 建造者
     const buildCount = 2;
@@ -60,16 +66,16 @@ const mainRoom = {
       move: 4
     }
     const buildBody = createBodyParts(buildConf);
-    builderRole.createBySpawn(roomName, calculateBodyCost(buildBody), buildCount, harvestCount, buildBody);
+    builderRole.createBySpawn(spwanName, calculateBodyCost(buildBody), buildCount, harvestCount, buildBody);
 
     // 搬运工
-    const transCount = 3;
+    const transCount = 5;
     const mainTranConf = {
-      carry: 8,
-      move: 4
+      carry: 4,
+      move: 2
     }
     const mainBodyTrans= createBodyParts(mainTranConf);
-    transporterRole.createBySpawn(roomName, calculateBodyCost(mainBodyTrans), transCount, mainBodyTrans, 'energy')
+    transporterRole.createBySpawn(spwanName, calculateBodyCost(mainBodyTrans), transCount, mainBodyTrans, 'energy')
 
     // 矿工
     const minerCount = 1;
@@ -79,17 +85,17 @@ const mainRoom = {
       move: 3
     }
     const minerBody: BodyPartConstant[] = createBodyParts(minerConf);
-    minerRole.createBySpawn(roomName, calculateBodyCost(minerBody), minerCount, minerBody);
+    minerRole.createBySpawn(spwanName, calculateBodyCost(minerBody), minerCount, minerBody);
 
     // Claimer 创建（需要指定目标房间）
     // claimerRole.create('W9N8');
-    // claimerRole.createBySourceRoom('W9N8', 1, 'W9N9');
+    // claimerRole.createBySourceRoom('obsidianlyg', 1, 'W6N8');
 
     // tower 执行
     towerRole.run(base.room);
 
     // 主房间加入矿工， 这个矿工移到矿区要在它脚底下放一个容器
-    const mainRoomSpwan = Game.spawns[roomName];
+    const mainRoomSpwan = Game.spawns[spwanName];
 
     // 做个矿工搬运者
     const minerTansBody: BodyPartConstant[] = [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE];
@@ -102,36 +108,56 @@ const mainRoom = {
               );
 
     // 志愿者
-    // const buildConfV = {
-    //   work: 4,
-    //   carry: 4,
-    //   move: 4
-    // }
-    // const upConfV = {
-    //   work: 4,
-    //   carry: 4,
-    //   move: 4
-    // }
-    // const haConfV = {
-    //   work: 6,
-    //   carry: 6,
-    //   move: 6
-    // }
-    // const haBodyV = createBodyParts(haConfV);
-    // const buildBodyV = createBodyParts(buildConfV);
-    // const upBodyV = createBodyParts(upConfV);
-    // harvesterRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(haBodyV), 2, haBodyV);
-    // builderRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(buildBodyV), 2,  buildBodyV);
-    // upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
+    const haParam: CreepParam = {
+      role: 'harvester',
+      spawn: spwanName,
+      conf: {work: 6,carry: 6,move: 6},
+      count: 2,
+      room: 'W6N8'
+    }
+    const buildParam: CreepParam = {
+      role: 'builder',
+      spawn: spwanName,
+      conf: {work: 4,carry: 4,move: 4},
+      count: 2,
+      room: 'W6N8'
+    }
+    const upParam: CreepParam = {
+      role: 'upgrader',
+      spawn: spwanName,
+      conf: {work: 4, carry: 4, move: 4},
+      count: 1,
+      room: 'W6N8'
+    }
+    creepCreate.createByParam(haParam);
+    creepCreate.createByParam(buildParam);
+    creepCreate.createByParam(upParam);
 
 
     // 特殊搬运工
-    const tempTCong = {
-      carry: 10,
-      move: 6
-    }
-    const tempTBody = createBodyParts(tempTCong);
-    transporterRole.createTemp(roomName, calculateBodyCost(tempTBody), 1, tempTBody, 'temp');
+    // const tempTCong = {
+    //   carry: 10,
+    //   move: 6
+    // }
+    // const tempTBody = createBodyParts(tempTCong);
+    // transporterRole.createTemp(roomName, calculateBodyCost(tempTBody), 1, tempTBody, 'temp');
+
+
+    // 攻击者
+    // const attackConf = {
+      //   tough: 10,
+    //   attack: 10,
+    //   move: 10
+    // }
+    // const attackBody = createBodyParts(attackConf);
+    // attackerRole.createBySpawn(roomName, calculateBodyCost(attackBody), 1, attackBody, 'W6N5');
+    // 治疗者
+    // const healConf = {
+    //   heal: 10,
+    //   move: 10
+    // }
+    // const healBody = createBodyParts(healConf);
+    // healerRole.createBySpawn(roomName, calculateBodyCost(healBody), 1, healBody, 'W6N5', true);
 
   }
 }

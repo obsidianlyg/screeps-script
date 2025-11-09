@@ -14,6 +14,17 @@ import findSource from "utils/FindSource";
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 import { findEnergyTargetsByPriority, getPriorityMode, PriorityMode } from "utils/PrioritySystem";
 
+import {
+    CreepRole,
+    CreepLevel,
+    getBodyByRole,
+    createBodyParts,
+    getLevelByEnergy,
+    canAffordBody,
+    adjustBodyToEnergy,
+    calculateBodyCost
+} from '../utils/BodyUtils';
+
 let harvestRole = {
     create: function() {
         const base = Game.spawns[MAIN_SPAWN_NAME];
