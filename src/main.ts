@@ -33,6 +33,10 @@ import towerRole from "roles/tower";
 
 import transferOnDeath from "utils/DeathHandler";
 
+import TerminalManager from "utils/TerminalManager";
+
+import FactoryManager from "utils/FactoryManager";
+
 import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
@@ -40,6 +44,7 @@ import {
 import mainRoomRole from 'room/MainRoom';
 import w9n8RoomRole from 'room/W9N8Room';
 import w9n9RoomRole from 'room/W9N9Room';
+import w6n8RoomRole from 'room/W6N8Room';
 
 declare global {
   /*
@@ -57,6 +62,39 @@ declare global {
     containerEnergy?: {
       [containerId: string]: number;
     };
+    terminalOrders?: {
+      [roomName: string]: Array<{
+        resourceType: ResourceConstant;
+        amount: number;
+        targetRoomName: string;
+        priority: number;
+      }>;
+    };
+    tradeHistory?: Array<{
+      timestamp: number;
+      type: 'send' | 'receive' | 'buy' | 'sell';
+      resourceType: ResourceConstant;
+      amount: number;
+      fromRoom?: string;
+      toRoom?: string;
+      price?: number;
+    }>;
+    factoryTasks?: {
+      [roomName: string]: Array<{
+        resourceType: ResourceConstant;
+        amount: number;
+        resultResource: ResourceConstant;
+        resultAmount: number;
+        priority: number;
+        isCompression: boolean;
+      }>;
+    };
+    factoryConfig?: {
+      [roomName: string]: {
+        compressionThreshold?: { [key: string]: number };
+        decompressResources?: { [key: string]: number };
+      };
+    };
   }
 
   interface CreepMemory {
@@ -66,7 +104,7 @@ declare global {
     stuck?: StuckMemory;
     _move?: any;
     assignedSource?: Id<Source> | null;
-    targetRepairId?: Id<StructureRoad | StructureWall> | null;
+    targetRepairId?: Id<StructureRoad | StructureWall | StructureContainer | StructureStorage | StructureTerminal>  | null;
     targetContainerId?: Id<StructureContainer | StructureStorage> | null;
     targetConstructionSiteId?: Id<ConstructionSite> | null;
     lastPosition?: {
@@ -133,7 +171,14 @@ interface CreepParam {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  // console.log(`Current game tick is ${Game.time}`);
+  console.log(`Current game tick is ${Game.time}`);
+
+  // 初始化Memory结构（仅在第一次tick执行）
+  if (Game.time === 1) {
+    TerminalManager.initializeMemory();
+    // Factory相关Memory会在使用时自动初始化
+  }
+
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
@@ -151,6 +196,19 @@ export const loop = ErrorMapper.wrapLoop(() => {
   w9n9RoomRole.create();
 
   const w6n8 = 'W6N8'
+  w6n8RoomRole.create();
+
+  // terminal
+  if (Game.time === 1469380) {
+
+  }
+  // TerminalManager.sendResource('W8N8', 'W1N1', 'Z', 10000);
+  if (Game.time === 1469510) {
+    TerminalManager.sendResource('W9N8', 'W8N8', 'U', 10000);
+  }
+  // TerminalManager.sendResource('W9N8', 'W1N1', 'U', 10000);
+  // TerminalManager.sendResource('W9N9', 'W8N8', 'energy', 10000);
+
 
 
   // 执行任务
@@ -167,7 +225,29 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
         const terminalRealId: Id<StructureTerminal> = "6903c6343efc9f003de679b7" as Id<StructureTerminal>;
         transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, terminalRealId, storageId);
+        continue;
+      }
+
+      if (creep.memory.role == 'transporterTemp' && creep.memory.room == leftRoom) {
+        const storageId: Id<StructureStorage> = "6906ed39206701003cd57037" as Id<StructureStorage>;
+        const terminalRealId: Id<StructureTerminal> = "690a5d7c5329a70039e88590" as Id<StructureTerminal>;
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, terminalRealId, storageId);
+        continue;
+      }
+
+      if (creep.memory.role == 'transporterTemp' && creep.memory.room == w9n9) {
+        const storageId: Id<StructureStorage> = "690c03cef18fde003eedc4ac" as Id<StructureStorage>;
+        const terminalRealId: Id<StructureTerminal> = "690f46cd5329a70039e8e9bd" as Id<StructureTerminal>;
+        // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
+        transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, terminalRealId, storageId);
         continue;
       }
 
@@ -187,17 +267,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
         continue;
       }
 
-      if (creep.memory.role.startsWith('harvester') || creep.memory.role == 'big_harvester') {
+      if (creep.memory.role.startsWith('harvester')) {
         harvesterRole.run(creep);
       }
 
-      if (creep.memory.role.startsWith('upgrader') || creep.memory.role == 'big_upgrader') {
+      if (creep.memory.role.startsWith('upgrader')) {
         upgradeRole.run(creep);
       }
 
-      if (creep.memory.role == 'builder' || creep.memory.role == 'big_builder'
-        || creep.memory.role.startsWith('builder')
-      ) {
+      if (creep.memory.role.startsWith('builder')) {
         builderRole.run(creep);
       }
 
