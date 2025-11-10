@@ -54,7 +54,7 @@ const subRoom = {
     // creep数量
     const harvestCount = 2;
     const buildCount = 2;
-    const upCount = 3;
+    const upCount = 1;
     const transCount = 3;
 
     const harvestBody = createBodyParts(harvestConf);
@@ -66,6 +66,14 @@ const subRoom = {
     upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
     transporterRole.createBySpawn(roomName, calculateBodyCost(transBody), transCount, transBody, 'energy')
     towerRole.run(room);
+
+    // 特殊搬运工
+    const tempTCong = {
+      carry: 10,
+      move: 6
+    }
+    const tempTBody = createBodyParts(tempTCong);
+    transporterRole.createTemp(roomName, calculateBodyCost(tempTBody), 0, tempTBody, 'temp');
 
 
     // 志愿者

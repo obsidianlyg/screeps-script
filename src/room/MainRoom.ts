@@ -49,11 +49,11 @@ const mainRoom = {
     harvesterRole.createBySpawn(spwanName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
 
     // 升级者
-    const upCount = 3;
+    const upCount = 1;
     const upConf = {
-      work: 7,
+      work: 8,
       carry: 6,
-      move: 5
+      move: 4
     }
     const upBody = createBodyParts(upConf);
     upgradeRole.createBySpawn(spwanName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
@@ -135,12 +135,12 @@ const mainRoom = {
 
 
     // 特殊搬运工
-    // const tempTCong = {
-    //   carry: 10,
-    //   move: 6
-    // }
-    // const tempTBody = createBodyParts(tempTCong);
-    // transporterRole.createTemp(roomName, calculateBodyCost(tempTBody), 1, tempTBody, 'temp');
+    const tempTCong = {
+      carry: 10,
+      move: 6
+    }
+    const tempTBody = createBodyParts(tempTCong);
+    transporterRole.createTemp(spwanName, calculateBodyCost(tempTBody), 1, tempTBody, 'temp');
 
 
     // 攻击者

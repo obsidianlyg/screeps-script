@@ -54,7 +54,7 @@ let transporterRole = {
         }
 
         // 统计当前 transporter 数量
-        const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporterTemp');
+        const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporterTemp' && creep.memory.room == spawnName);
 
         // 如果数量不足且能量足够，创建新的 transporter
         if (transporters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {

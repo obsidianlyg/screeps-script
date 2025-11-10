@@ -18,7 +18,7 @@ import { transportEnergy, needsEnergyTransport } from "utils/EnergyTransport";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
-import { repairRoads } from "utils/repair";
+import { repairRoads, repairContainers } from "utils/repair";
 import { handleStuckDetection } from "utils/StuckDetection";
 
 let builderRole = {
@@ -379,11 +379,18 @@ let builderRole = {
                     return;
                 }
 
-                // 修路
-                let reapirRoadBool = repairRoads(creep);
-                if (reapirRoadBool) {
+                // 修容器
+                let repairContainer = repairContainers(creep);
+                if (repairContainer) {
                     return;
                 }
+
+                // 修路
+                let repairRoadsBool = repairRoads(creep);
+                if (repairRoadsBool) {
+                    return;
+                }
+
                 // 升级
                 const controller = creep.room.controller;
                 if (controller) {

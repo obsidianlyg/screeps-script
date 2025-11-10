@@ -28,7 +28,7 @@ let creepCreate = {
         }
 
         // 统计当前 role 数量
-        const creeps = _.filter(Game.creeps, (creep) => creep.memory.role === role && creep.memory.room == room);
+        const creeps = _.filter(Game.creeps, (creep) => creep.memory.role === role + spawnName && creep.memory.room == room);
 
 
         // 如果数量不足
@@ -42,7 +42,7 @@ let creepCreate = {
             // 尝试生成 Creep 并检查结果
             const result = base.spawnCreep(body, newName, {
                 memory: {
-                    role: role,
+                    role: role + spawnName,
                     room: room,
                     working: false
                 }

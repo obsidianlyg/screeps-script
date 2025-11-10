@@ -14,6 +14,8 @@ import findSource from "utils/FindSource";
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 import { findEnergyTargetsByPriority, getPriorityMode, PriorityMode } from "utils/PrioritySystem";
 
+import LinkManager from "utils/LinkManager";
+
 import {
     CreepRole,
     CreepLevel,

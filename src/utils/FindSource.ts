@@ -66,40 +66,33 @@ function findSource(creep:Creep) {
                 // }
 
                 if (source.id == '088407718c7f377' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
                 // 只限制采集者个数
                 if (source.id == 'b8e007718c76b6e' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 3")
                     continue;
                 }
 
                 if (source.id == 'fd3d07720e87b83' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 1")
                     continue;
                 }
 
                 if (source.id == '30d007720e8ef7b' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 1")
                     continue;
                 }
 
                 if (source.id == '884707717df4411' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 1")
                     continue;
                 }
 
                 if (source.id == '1f8907717df7113' && (harvestCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 1")
                     continue;
                 }
 
-                if (source.id == '0d080772ccae8f2' && (assignedCount >= 1)) {
-                    // console.log("特殊能量源人数已达上限， 1")
-                    continue;
-                }
+                // if (source.id == '0d080772ccae8f2' && (assignedCount >= 1)) {
+                //     continue;
+                // }
 
                 // 优先级 1：分配人数少的优先
                 if (assignedCount < minAssignedCreeps) {
