@@ -47,14 +47,14 @@ const subRoom = {
       move: 2
     }
     const tranConf = {
-      carry: 4,
+      carry: 6,
       move: 4
     }
     // creep数量
     const harvestCount = 1;
     const buildCount = 1;
     const upCount = 1;
-    const transCount = 2;
+    const transCount = 4;
 
     const harvestBody = createBodyParts(harvestConf);
     const buildBody = createBodyParts(buildConf);

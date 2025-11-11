@@ -54,7 +54,8 @@ let transporterRole = {
         }
 
         // 统计当前 transporter 数量
-        const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporterTemp' && creep.memory.room == spawnName);
+        const transporters = _.filter(Game.creeps, (creep) => creep.memory.role === 'transporterTemp'
+        && creep.memory.room == spawnName && creep.memory.transportMode == modeStr);
 
         // 如果数量不足且能量足够，创建新的 transporter
         if (transporters.length < count && getSpawnAndExtensionEnergy(base.room) >= energyLimit) {
@@ -483,6 +484,7 @@ let transporterRole = {
                 break;
         }
     },
+
     /**
      * 从源 ID 提取指定资源，并将其转移到目标 ID。
      * 兼容处理：如果 sourceId 为 null/undefined，则跳过提取步骤，直接将自身携带的资源转移到 targetId。

@@ -13,6 +13,8 @@ import minerRole from "roles/miner";
 import attackerRole from "roles/attacker";
 import healerRole from "roles/healer";
 
+import LinkManager from "utils/LinkManager";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
@@ -158,6 +160,20 @@ const mainRoom = {
     // }
     // const healBody = createBodyParts(healConf);
     // healerRole.createBySpawn(roomName, calculateBodyCost(healBody), 1, healBody, 'W6N5', true);
+
+    // link 传输
+    const sourceLink: Id<StructureLink> = "69134847f18fde003eee8c1a" as Id<StructureLink>;
+    const sourceLink2: Id<StructureLink> = "6913472b206701003cd68fff" as Id<StructureLink>;
+    const targetLink: Id<StructureLink> = "69106153f18fde003eee2eca" as Id<StructureLink>;
+    LinkManager.transferEnergyToLink(sourceLink, targetLink);
+    LinkManager.transferEnergyToLink(sourceLink2, targetLink);
+    // link 搬运者
+    const linkTCong = {
+      carry: 10,
+      move: 6
+    }
+    const linkTBody = createBodyParts(linkTCong);
+    transporterRole.createTemp(spwanName, calculateBodyCost(linkTBody), 1, linkTBody, 'link');
 
   }
 }
