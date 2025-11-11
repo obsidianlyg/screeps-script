@@ -71,7 +71,7 @@ const mainRoom = {
     builderRole.createBySpawn(spwanName, calculateBodyCost(buildBody), buildCount, harvestCount, buildBody);
 
     // 搬运工
-    const transCount = 5;
+    const transCount = 2;
     const mainTranConf = {
       carry: 4,
       move: 2
@@ -128,7 +128,7 @@ const mainRoom = {
       role: 'upgrader',
       spawn: spwanName,
       conf: {work: 4, carry: 4, move: 4},
-      count: 1,
+      count: 0,
       room: 'W6N8'
     }
     creepCreate.createByParam(haParam);

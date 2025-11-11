@@ -228,6 +228,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
         continue;
       }
 
+      if (creep.memory.role == 'transporterTemp' && creep.memory.room == w6n8 && creep.memory.transportMode == 'link') {
+        const storageId: Id<StructureStorage> = "6911fba0f18fde003eee6adc" as Id<StructureStorage>;
+        const linkId: Id<StructureLink> = "69134dcd5329a70039e96e30" as Id<StructureLink>;
+        transporterRole.moveResourceBetweenTargets(creep, 'energy', linkId, storageId);
+        continue;
+      }
+
       // 特殊搬运者
       if (creep.memory.role == 'transporterTemp' && creep.memory.room == mainSpawn) {
         const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;

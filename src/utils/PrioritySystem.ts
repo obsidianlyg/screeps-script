@@ -41,38 +41,38 @@ function hasStore(structure: AnyStructure): structure is (StructureSpawn | Struc
 function getStructurePriority(structureType: StructureConstant, mode: PriorityMode): number {
     switch (mode) {
         case PriorityMode.IDLE_HARVESTER:
-            // 闲时采集者：link(资源点附近) > container > spawn > extension > tower > storage
+            // 闲时采集者：container > spawn > extension > tower > storage > link
             switch (structureType) {
-                case STRUCTURE_LINK: return 0; // 最高优先级，但只在资源点附近
                 case STRUCTURE_CONTAINER: return 1;
                 case STRUCTURE_SPAWN: return 2;
                 case STRUCTURE_EXTENSION: return 3;
                 case STRUCTURE_TOWER: return 4;
                 case STRUCTURE_STORAGE: return 5;
+                case STRUCTURE_LINK: return 6; // Link优先级最低，除非距离很近
                 default: return 999;
             }
 
         case PriorityMode.WARTIME_TRANSPORTER:
-            // 战时搬运者：link(资源点附近) > tower > spawn > extension > storage > container
+            // 战时搬运者：tower > spawn > extension > storage > container > link
             switch (structureType) {
-                case STRUCTURE_LINK: return 0; // 最高优先级，但只在资源点附近
                 case STRUCTURE_TOWER: return 1;
                 case STRUCTURE_SPAWN: return 2;
                 case STRUCTURE_EXTENSION: return 3;
                 case STRUCTURE_STORAGE: return 4;
                 case STRUCTURE_CONTAINER: return 5;
+                case STRUCTURE_LINK: return 6; // Link优先级最低，除非距离很近
                 default: return 999;
             }
 
         case PriorityMode.WARTIME_HARVESTER:
-            // 战时采集者：link(资源点附近) > container > tower > spawn > extension > storage
+            // 战时采集者：container > tower > spawn > extension > storage > link
             switch (structureType) {
-                case STRUCTURE_LINK: return 0; // 最高优先级，但只在资源点附近
                 case STRUCTURE_CONTAINER: return 1;
                 case STRUCTURE_TOWER: return 2;
                 case STRUCTURE_SPAWN: return 3;
                 case STRUCTURE_EXTENSION: return 4;
                 case STRUCTURE_STORAGE: return 5;
+                case STRUCTURE_LINK: return 6; // Link优先级最低，除非距离很近
                 default: return 999;
             }
 
@@ -100,6 +100,95 @@ function isLinkNearResource(link: StructureLink, room: Room): boolean {
     }
 
     return false;
+}
+
+/**
+ * 检查creep是否在资源点附近3格范围内
+ * @param creep creep对象
+ * @param room 房间对象
+ * @returns boolean 是否在资源点附近
+ */
+function isCreepNearResource(creep: Creep, room: Room): boolean {
+    // 查找房间内所有的能量源
+    const sources = room.find(FIND_SOURCES);
+
+    // 检查creep是否距离任何一个能量源在3格范围内
+    for (const source of sources) {
+        const distance = creep.pos.getRangeTo(source.pos);
+        if (distance <= 3) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * 检查容器是否在资源点附近3格范围内
+ * @param container 容器结构
+ * @param room 房间对象
+ * @returns boolean 是否在资源点附近
+ */
+function isContainerNearResource(container: StructureContainer, room: Room): boolean {
+    // 查找房间内所有的能量源
+    const sources = room.find(FIND_SOURCES);
+
+    // 检查容器是否距离任何一个能量源在3格范围内
+    for (const source of sources) {
+        const distance = container.pos.getRangeTo(source.pos);
+        if (distance <= 3) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * 查找距离资源点最近的容器
+ * @param room 房间对象
+ * @param excludeContainers 排除的容器ID数组
+ * @returns 最近的容器或null
+ */
+function findNearestContainerToResource(room: Room, excludeContainers: Id<StructureContainer>[] = []): StructureContainer | null {
+    // 查找房间内所有的容器
+    const containers = room.find(FIND_STRUCTURES, {
+        filter: (structure): structure is StructureContainer => {
+            if (structure.structureType !== STRUCTURE_CONTAINER) return false;
+            return !excludeContainers.includes(structure.id);
+        }
+    }) as StructureContainer[];
+
+    if (containers.length === 0) {
+        return null;
+    }
+
+    // 查找房间内所有的能量源
+    const sources = room.find(FIND_SOURCES);
+    if (sources.length === 0) {
+        return null;
+    }
+
+    // 计算每个容器到最近能量源的距离，选择距离最近的
+    let nearestContainer: StructureContainer | null = null;
+    let minDistance = Infinity;
+
+    for (const container of containers) {
+        let containerMinDistance = Infinity;
+
+        // 找到这个容器距离最近的能量源
+        for (const source of sources) {
+            const distance = container.pos.getRangeTo(source.pos);
+            containerMinDistance = Math.min(containerMinDistance, distance);
+        }
+
+        if (containerMinDistance < minDistance) {
+            minDistance = containerMinDistance;
+            nearestContainer = container;
+        }
+    }
+
+    return nearestContainer;
 }
 
 /**
@@ -147,6 +236,9 @@ export function findEnergyTargetsByPriority(
     const room = creep.room;
     const energySourceType: 'container' | 'storage' | 'link' | null = creep.memory.energySourceType || null;
 
+    // 检查creep是否在资源点附近
+    const creepIsNearResource = isCreepNearResource(creep, room);
+
     // 查找所有需要能量的建筑
     const structuresNeedingEnergy = room.find(FIND_STRUCTURES, {
         filter: (structure) => {
@@ -183,14 +275,46 @@ export function findEnergyTargetsByPriority(
     for (const structure of structuresNeedingEnergy) {
         if (!hasStore(structure)) continue;
 
-        const priority = getStructurePriority(structure.structureType, mode);
+        const basePriority = getStructurePriority(structure.structureType, mode);
+        const distance = creep.pos.getRangeTo(structure.pos);
         const freeCapacity = structure.store.getFreeCapacity(RESOURCE_ENERGY);
 
+        // 计算最终的优先级（考虑距离调整）
+        let finalPriority = basePriority;
+
+        // 特殊处理：当creep在资源点附近时
+        if (creepIsNearResource) {
+            // 检查建筑是否在资源点附近
+            let isTargetNearResource = false;
+            if (structure.structureType === STRUCTURE_CONTAINER) {
+                const container = structure as StructureContainer;
+                isTargetNearResource = isContainerNearResource(container, room);
+            } else if (structure.structureType === STRUCTURE_LINK) {
+                const link = structure as StructureLink;
+                isTargetNearResource = isLinkNearResource(link, room);
+            }
+
+            // 距离调整：
+            // - 如果目标也在资源点附近，大幅降低优先级数字（提高优先级）
+            // - 如果目标在资源点附近且creep也在附近，进一步降低优先级
+            if (isTargetNearResource) {
+                finalPriority = basePriority * 0.1; // 资源点附近的目标优先级提升10倍
+            }
+
+            // 如果是Link但不在资源点附近，降低优先级
+            if (structure.structureType === STRUCTURE_LINK && !isTargetNearResource) {
+                finalPriority = basePriority * 2; // 远处的Link优先级降低
+            }
+
+            // 距离惩罚：越远的目标优先级越低
+            finalPriority = finalPriority + (distance / 10);
+        }
+
         // 只包含有意义的优先级（排除 999）
-        if (priority < 999) {
+        if (basePriority < 999) {
             targets.push({
                 structure,
-                priority,
+                priority: finalPriority,
                 freeCapacity
             });
         }
@@ -198,8 +322,9 @@ export function findEnergyTargetsByPriority(
 
     // 按优先级排序（优先级数字越小越靠前），如果优先级相同则按距离排序
     targets.sort((a, b) => {
-        if (a.priority !== b.priority) {
-            return a.priority - b.priority;
+        const priorityDiff = a.priority - b.priority;
+        if (Math.abs(priorityDiff) > 0.01) {
+            return priorityDiff;
         }
         // 优先级相同时比较距离
         return creep.pos.getRangeTo(a.structure.pos) - creep.pos.getRangeTo(b.structure.pos);
@@ -375,6 +500,55 @@ export function debugLinksStatus(room: Room): void {
 }
 
 /**
+ * 调试函数：显示房间内容器状态和资源距离信息
+ * @param room 房间对象
+ */
+export function debugContainersStatus(room: Room): void {
+    console.log(`=== 房间 ${room.name} 容器状态报告 ===`);
+
+    const containers = room.find(FIND_STRUCTURES, {
+        filter: (structure): structure is StructureContainer => {
+            return structure.structureType === STRUCTURE_CONTAINER;
+        }
+    }) as StructureContainer[];
+
+    if (containers.length === 0) {
+        console.log('房间内没有容器');
+        console.log('=== 报告结束 ===');
+        return;
+    }
+
+    console.log(`总容器数量: ${containers.length}`);
+
+    // 查找房间内所有的能量源
+    const sources = room.find(FIND_SOURCES);
+    console.log(`能量源数量: ${sources.length}`);
+
+    containers.forEach((container, index) => {
+        const energy = container.store.getUsedCapacity(RESOURCE_ENERGY);
+        const capacity = container.store.getCapacity(RESOURCE_ENERGY);
+        const percentage = capacity > 0 ? (energy / capacity) * 100 : 0;
+        const isNearResource = isContainerNearResource(container, room);
+
+        // 找到最近的能量源距离
+        let minDistance = Infinity;
+        for (const source of sources) {
+            const distance = container.pos.getRangeTo(source.pos);
+            minDistance = Math.min(minDistance, distance);
+        }
+
+        console.log(`${index + 1}. 容器 ${container.id.slice(-4)}:`);
+        console.log(`   - 位置: (${container.pos.x}, ${container.pos.y})`);
+        console.log(`   - 能量: ${energy}/${capacity} (${percentage.toFixed(1)}%)`);
+        console.log(`   - 距离最近能量源: ${minDistance === Infinity ? '未知' : minDistance} 格`);
+        console.log(`   - 是否在资源点附近(3格内): ${isNearResource ? '✅ 是' : '❌ 否'}`);
+        console.log(`   - 特殊状态: ${isNearResource ? '资源点容器(优先级0.5)' : '普通容器(优先级1)'}`);
+    });
+
+    console.log('=== 报告结束 ===');
+}
+
+/**
  * 显示优先级系统的能量目标信息
  * @param creep 执行任务的 creep
  * @param mode 优先级模式
@@ -382,7 +556,78 @@ export function debugLinksStatus(room: Room): void {
 export function debugPriorityTargets(creep: Creep, mode: PriorityMode): void {
     console.log(`=== ${creep.name} 优先级目标报告 (模式: ${mode}) ===`);
 
-    const targets = findEnergyTargetsByPriority(creep, mode);
+    const creepIsNearResource = isCreepNearResource(creep, creep.room);
+    console.log(`Creep位置状态: ${creepIsNearResource ? '在资源点附近' : '不在资源点附近'}`);
+
+    // 手动计算优先级详情以便调试
+    const targets: Array<{
+        structure: AnyStructure;
+        basePriority: number;
+        finalPriority: number;
+        freeCapacity: number;
+        distance: number;
+        isNearResource: boolean;
+    }> = [];
+
+    const room = creep.room;
+    const structuresNeedingEnergy = room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            if (!hasStore(structure)) return false;
+            if (structure.structureType === STRUCTURE_LINK) {
+                const link = structure as StructureLink;
+                if (!isLinkNearResource(link, room)) return false;
+            }
+            const freeCapacity = structure.store.getFreeCapacity(RESOURCE_ENERGY);
+            return freeCapacity > 0;
+        }
+    });
+
+    for (const structure of structuresNeedingEnergy) {
+        if (!hasStore(structure)) continue;
+
+        const basePriority = getStructurePriority(structure.structureType, mode);
+        const distance = creep.pos.getRangeTo(structure.pos);
+        const freeCapacity = structure.store.getFreeCapacity(RESOURCE_ENERGY);
+        let finalPriority = basePriority;
+        let isNearResource = false;
+
+        if (structure.structureType === STRUCTURE_CONTAINER) {
+            const container = structure as StructureContainer;
+            isNearResource = isContainerNearResource(container, room);
+        } else if (structure.structureType === STRUCTURE_LINK) {
+            const link = structure as StructureLink;
+            isNearResource = isLinkNearResource(link, room);
+        }
+
+        if (creepIsNearResource) {
+            if (isNearResource) {
+                finalPriority = basePriority * 0.1;
+            }
+            if (structure.structureType === STRUCTURE_LINK && !isNearResource) {
+                finalPriority = basePriority * 2;
+            }
+            finalPriority = finalPriority + (distance / 10);
+        }
+
+        if (basePriority < 999) {
+            targets.push({
+                structure,
+                basePriority,
+                finalPriority,
+                freeCapacity,
+                distance,
+                isNearResource
+            });
+        }
+    }
+
+    targets.sort((a, b) => {
+        const priorityDiff = a.finalPriority - b.finalPriority;
+        if (Math.abs(priorityDiff) > 0.01) {
+            return priorityDiff;
+        }
+        return a.distance - b.distance;
+    });
 
     if (targets.length === 0) {
         console.log('没有找到需要能量的目标');
@@ -396,15 +641,16 @@ export function debugPriorityTargets(creep: Creep, mode: PriorityMode): void {
         const structure = target.structure;
         console.log(`${index + 1}. ${structure.structureType} ${structure.id.slice(-4)}:`);
         console.log(`   - 位置: (${structure.pos.x}, ${structure.pos.y})`);
-        console.log(`   - 优先级: ${target.priority}`);
+        console.log(`   - 基础优先级: ${target.basePriority}`);
+        console.log(`   - 最终优先级: ${target.finalPriority.toFixed(3)}`);
         console.log(`   - 空余容量: ${target.freeCapacity}`);
-        console.log(`   - 距离: ${creep.pos.getRangeTo(structure.pos)} 格`);
+        console.log(`   - 距离: ${target.distance} 格`);
+        console.log(`   - 是否在资源点附近: ${target.isNearResource ? '✅' : '❌'}`);
 
-        // 如果是Link，显示额外信息
         if (structure.structureType === STRUCTURE_LINK) {
-            const link = structure as StructureLink;
-            const isNearResource = isLinkNearResource(link, creep.room);
-            console.log(`   - Link特殊信息: 在资源点附近=${isNearResource}`);
+            console.log(`   - 类型: Link${target.isNearResource ? '(资源点附近)' : '(远处)'}`);
+        } else if (structure.structureType === STRUCTURE_CONTAINER) {
+            console.log(`   - 类型: 容器${target.isNearResource ? '(资源点附近)' : '(普通)'}`);
         }
     });
 

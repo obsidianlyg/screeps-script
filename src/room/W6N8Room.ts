@@ -12,6 +12,8 @@ import minerRole from "roles/miner";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
+import LinkManager from "utils/LinkManager";
+
 import {
     CreepRole,
     CreepLevel,
@@ -65,6 +67,18 @@ const subRoom = {
     upgradeRole.createBySpawn(roomName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
     transporterRole.createBySpawn(roomName, calculateBodyCost(transBody), transCount, transBody, 'energy')
     towerRole.run(room);
+
+    // link 传输
+    const sourceLink: Id<StructureLink> = "69134f1eb6cfe3003b2f7f92" as Id<StructureLink>;
+    const targetLink: Id<StructureLink> = "69134dcd5329a70039e96e30" as Id<StructureLink>;
+    LinkManager.transferEnergyToLink(sourceLink, targetLink);
+    // link 搬运者
+    const linkTCong = {
+      carry: 4,
+      move: 4
+    }
+    const linkTBody = createBodyParts(linkTCong);
+    transporterRole.createTemp(roomName, calculateBodyCost(linkTBody), 1, linkTBody, 'link');
 
 
   }

@@ -301,6 +301,7 @@ let builderRole = {
                             case STRUCTURE_STORAGE:
                                 return 2;
                             case STRUCTURE_ROAD:
+                            case STRUCTURE_LINK:
                                 return 3;
                             default:
                                 return 4; // 其他建筑
