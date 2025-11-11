@@ -193,10 +193,17 @@ let transporterRole = {
                 return;
             }
 
-            // 查找包含指定矿物的容器或存储
+            // 查找包含指定矿物的容器或存储  --- 暂时去除storage
+            // const mineralContainers = sourceRoom.find(FIND_STRUCTURES, {
+            //     filter: (structure) => {
+            //         return (structure.structureType === STRUCTURE_CONTAINER || structure.structureType === STRUCTURE_STORAGE) &&
+            //                structure.store.getUsedCapacity(mineralType) > 0;
+            //     }
+            // });
+
             const mineralContainers = sourceRoom.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType === STRUCTURE_CONTAINER || structure.structureType === STRUCTURE_STORAGE) &&
+                    return (structure.structureType === STRUCTURE_CONTAINER) &&
                            structure.store.getUsedCapacity(mineralType) > 0;
                 }
             });
