@@ -38,8 +38,6 @@ const mainRoom = {
   create: function () {
     const base = Game.spawns[spwanName];
 
-    // 创建
-
     // 采集者
     const harvestCount = 2;
     const harvestConf = {

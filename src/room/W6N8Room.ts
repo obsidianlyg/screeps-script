@@ -34,19 +34,19 @@ const subRoom = {
 
     // body
     const harvestConf = {
-       work: 2,
-      carry: 2,
-      move: 2
+       work: 4,
+      carry: 4,
+      move: 4
     }
     const buildConf = {
-      work: 2,
-      carry: 2,
-      move: 2
+      work: 4,
+      carry: 4,
+      move: 4
     }
     const upConf = {
-      work: 2,
-      carry: 2,
-      move: 2
+      work: 4,
+      carry: 4,
+      move: 4
     }
     const tranConf = {
       carry: 6,

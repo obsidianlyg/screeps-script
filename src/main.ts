@@ -18,6 +18,8 @@ import healerRole from "roles/healer";
 
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
+import { initializeRoomSourcePositions } from "utils/InitRoom";
+
 import {
     CreepRole,
     CreepLevel,
@@ -59,6 +61,7 @@ declare global {
   interface Memory {
     uuid: number;
     log: any;
+    rooms: { [name: string]: RoomMemory };
     containerEnergy?: {
       [containerId: string]: number;
     };
@@ -160,6 +163,19 @@ interface CreepParam {
     modeStr?: string;
 }
 
+// 定义 RoomPosition 的简化结构，用于安全地存储到 Memory
+interface SerializedRoomPosition {
+    x: number;
+    y: number;
+    roomName: string;
+}
+
+// 扩展 RoomMemory 接口，添加缓存属性
+interface RoomMemory {
+    // ... 其他属性 ...
+    sourcePositions?: SerializedRoomPosition[]; // 使用我们定义的简化结构
+}
+
   // Syntax for adding proprties to `global` (ex "global.log")
   namespace NodeJS {
     interface Global {
@@ -186,6 +202,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // 循环遍历所有房间进行缓存检查和初始化（在每个Tick只运行一次）
+  for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      // 仅对有控制器且已控制的房间进行缓存
+      if (room.controller && room.controller.my) {
+          initializeRoomSourcePositions(room);
+      }
+  }
+
   const mainSpawn = MAIN_SPAWN_NAME;
   mainRoomRole.create()
 
@@ -207,7 +232,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     TerminalManager.sendResource('W9N8', 'W8N8', 'U', 10000);
   }
   // TerminalManager.sendResource('W9N8', 'W1N1', 'U', 10000);
-  // TerminalManager.sendResource('W9N9', 'W8N8', 'energy', 10000);
+  // TerminalManager.sendResource('W9N9', 'W8N8', 'H', 10000);
 
 
 
@@ -242,7 +267,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
         // transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
-        transporterRole.moveResourceBetweenTargets(creep, 'Z', terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, 'Z', terminalRealId, storageId);
         continue;
       }
 
@@ -252,7 +277,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
         // transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
-        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, terminalRealId, storageId);
+        // transporterRole.moveResourceBetweenTargets(creep, 'U', terminalRealId, storageId);
         continue;
       }
 
