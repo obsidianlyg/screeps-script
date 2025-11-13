@@ -222,10 +222,11 @@ function shouldExcludeTarget(structure: AnyStructure, energySourceType: 'contain
 
 /**
  * 根据优先级模式查找需要能量的建筑（距离层次版本）
+ * * 目标：将能量从 Creep 转移到这些结构中。
  * @param creep 执行任务的 creep
  * @param mode 优先级模式
  * @param includeStorage 是否包含 storage 作为目标
- * @returns 按优先级排序的可用目标列表
+ * @returns 按有效优先级排序的最优目标列表
  */
 export function findEnergyTargetsByPriority(
     creep: Creep,
@@ -233,134 +234,89 @@ export function findEnergyTargetsByPriority(
     includeStorage: boolean = false
 ): EnergyTarget[] {
     const room = creep.room;
+    // 假设 creep.memory.energySourceType 是用于防止来回搬运的来源标记
     const energySourceType: 'container' | 'storage' | 'link' | null = creep.memory.energySourceType || null;
 
-    // 收集所有可能的目标并计算有效优先级
-    const candidateTargets: Array<{
-        structure: AnyStructure;
+    // 统一的候选目标接口，包含计算后的有效优先级
+    interface Candidate {
+        structure: AnyStoreStructure;
         basePriority: number;
         effectivePriority: number;
         distance: number;
         freeCapacity: number;
-        type: 'link' | 'container' | 'other';
-    }> = [];
-
-    // 1. 收集所有符合条件的Link
-    const allLinks = room.find(FIND_STRUCTURES, {
-        filter: (structure): structure is StructureLink => {
-            if (structure.structureType !== STRUCTURE_LINK) return false;
-            const link = structure;
-            return isLinkNearResource(link, room) && // 只考虑在资源点附近的Link
-                   link.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-                   !shouldExcludeTarget(structure, energySourceType);
-        }
-    }) as StructureLink[];
-
-    for (const link of allLinks) {
-        const distance = creep.pos.getRangeTo(link.pos);
-        const basePriority = 0; // Link基础优先级最高
-        const effectivePriority = basePriority + distance * 3; // 但距离惩罚很重
-
-        candidateTargets.push({
-            structure: link,
-            basePriority,
-            effectivePriority,
-            distance,
-            freeCapacity: link.store.getFreeCapacity(RESOURCE_ENERGY),
-            type: 'link'
-        });
     }
 
-    // 2. 收集所有容器
-    const containers = room.find(FIND_STRUCTURES, {
-        filter: (structure): structure is StructureContainer => {
-            if (structure.structureType !== STRUCTURE_CONTAINER) return false;
-            const container = structure;
-            return container.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-                   !shouldExcludeTarget(structure, energySourceType);
-        }
-    }) as StructureContainer[];
+    const candidateTargets: Candidate[] = [];
 
-    for (const container of containers) {
-        const distance = creep.pos.getRangeTo(container.pos);
-        // const isNearResource = isContainerNearResource(container, room);
+    // --- 1. 统一查找并过滤所有具有 Store 的结构 ---
 
-        let basePriority = 10; // 容器基础优先级
-        // if (isNearResource) {
-        //     basePriority = 10; // 资源点附近的容器基础优先级更高
-        // }
+    // 查找所有结构，并统一处理过滤条件
+    const allStructures = room.find(FIND_STRUCTURES) as AnyStructure[];
 
-        const effectivePriority = basePriority + distance * 1; // 容器的距离惩罚较轻
-
-        candidateTargets.push({
-            structure: container,
-            basePriority,
-            effectivePriority,
-            distance,
-            freeCapacity: container.store.getFreeCapacity(RESOURCE_ENERGY),
-            type: 'container'
-        });
-    }
-
-    // 3. 收集其他建筑
-    const otherStructures = room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-            // 根据模式决定是否包含某些结构类型
-            if (!includeStorage && structure.structureType === STRUCTURE_STORAGE) {
-                return false;
-            }
-
-            // 只考虑有 store 属性的结构
-            if (!hasStore(structure)) {
-                return false;
-            }
-
-            // 排除已处理的容器和Link
-            if (structure.structureType === STRUCTURE_CONTAINER || structure.structureType === STRUCTURE_LINK) {
-                return false;
-            }
-
-            // 检查是否应该排除（避免往返搬运）
-            if (shouldExcludeTarget(structure, energySourceType)) {
-                return false;
-            }
-
-            // 检查是否有空余容量
-            const freeCapacity = structure.store.getFreeCapacity(RESOURCE_ENERGY);
-            return freeCapacity > 0;
-        }
-    });
-
-    for (const structure of otherStructures) {
+    for (const structure of allStructures) {
+        // A. 基础过滤：排除不带 Store 的结构
         if (!hasStore(structure)) continue;
 
-        const priority = getStructurePriority(structure.structureType, mode);
-        if (priority >= 999) continue; // 跳过无效优先级
+        // B. 排除条件：不含能量空位
+        const freeCapacity = structure.store.getFreeCapacity(RESOURCE_ENERGY);
+        if (freeCapacity <= 0) continue;
+
+        // C. 排除条件：根据模式和来源标记排除不合适的结构
+        if (shouldExcludeTarget(structure, energySourceType)) continue;
+
+        // D. 排除条件：根据 includeStorage 排除 Storage
+        if (!includeStorage && structure.structureType === STRUCTURE_STORAGE) continue;
+
+        // E. 排除条件：只针对 Link，确保它是源头附近的 Link (接收能量)
+        if (structure.structureType === STRUCTURE_LINK) {
+            // 假设 isLinkNearResource 是判断该 Link 是否为 Miner 旁的接收 Link
+            if (!isLinkNearResource(structure as StructureLink, room)) continue;
+        }
+
+        // G. 获取基础优先级和距离惩罚权重
+        let basePriority = getStructurePriority(structure.structureType, mode);
+
+        // 跳过不希望转移的低优先级目标（如果 getStructurePriority 返回一个高值作为无效标记）
+        if (basePriority >= 999) continue;
 
         const distance = creep.pos.getRangeTo(structure.pos);
-        const effectivePriority = priority + distance * 3;
 
+        // 设置距离惩罚权重：Link惩罚最重 (x5)，其他重要建筑惩罚较轻 (x3)，Container惩罚最轻 (x1)
+        let distancePenaltyWeight = 3;
+        if (structure.structureType === STRUCTURE_LINK) {
+            distancePenaltyWeight = 5; // Link是最高优先级，但距离惩罚也最高（希望尽量在身边处理）
+            basePriority = 0; // Link 优先级最高
+        } else if (structure.structureType === STRUCTURE_CONTAINER) {
+            distancePenaltyWeight = 1; // 容器优先级低，距离惩罚最轻 (适合长途倾倒)
+            basePriority = 10;
+        }
+
+        const effectivePriority = basePriority + distance * distancePenaltyWeight;
+
+        // --- 2. 添加到候选列表 ---
         candidateTargets.push({
-            structure,
-            basePriority: priority,
+            structure: structure as AnyStoreStructure,
+            basePriority,
             effectivePriority,
             distance,
-            freeCapacity: structure.store.getFreeCapacity(RESOURCE_ENERGY),
-            type: 'other'
+            freeCapacity,
         });
     }
 
-    // 按有效优先级排序（考虑距离后的实际优先级）
+    // --- 3. 排序 ---
+    // 按有效优先级升序排序（有效优先级越低越优先）
     candidateTargets.sort((a, b) => {
         if (a.effectivePriority !== b.effectivePriority) {
             return a.effectivePriority - b.effectivePriority;
         }
-        return a.distance - b.distance; // 有效优先级相同时按距离排序
+        // 有效优先级相同时，距离更近的优先 (再次强调 A* 的距离部分)
+        return a.distance - b.distance;
     });
 
-    // 转换为EnergyTarget格式，只返回最优的几个目标
+    // --- 4. 结果转换 ---
+    // 返回前几个最优的目标
     const result: EnergyTarget[] = [];
-    for (const candidate of candidateTargets.slice(0, 1)) { // 最多返回5个最优目标
+    for (const candidate of candidateTargets.slice(0, 5)) { // 增加返回数量，方便调用者选择备选
         result.push({
             structure: candidate.structure,
             priority: candidate.basePriority,
