@@ -46,11 +46,11 @@ function getStructurePriority(structureType: StructureConstant, mode: PriorityMo
             // 闲时采集者：link > container > spawn > extension > tower > storage
             switch (structureType) {
                 case STRUCTURE_LINK: return 0; // 最高优先级
-                case STRUCTURE_CONTAINER: return 1;
-                case STRUCTURE_SPAWN: return 2;
-                case STRUCTURE_EXTENSION: return 3;
-                case STRUCTURE_TOWER: return 4;
-                case STRUCTURE_STORAGE: return 5;
+                case STRUCTURE_CONTAINER: return 5;
+                case STRUCTURE_SPAWN: return 20;
+                case STRUCTURE_EXTENSION: return 30;
+                case STRUCTURE_TOWER: return 40;
+                case STRUCTURE_STORAGE: return 50;
                 default: return 999;
             }
 
@@ -232,7 +232,7 @@ export function findEnergyTargetsByPriority(
             if (isLinkNearResource(structure as StructureLink, room)) {
                  // 如果是资源点 Link（通常是Miner直接填充），Harvester/Transporter应跳过，除非它是中转。
                  // 保持原逻辑：Harvester 模式下 Link 优先级最高，惩罚最重。
-                 distancePenaltyWeight = 1;
+                 distancePenaltyWeight = 2;
             } else {
                  // 非资源点附近的 Link (例如中央 Link)，如果不是接收目标，也应该跳过
                  // 这里需要更精细的 Link 角色判断，但为保持代码简洁，沿用原逻辑的排除。
