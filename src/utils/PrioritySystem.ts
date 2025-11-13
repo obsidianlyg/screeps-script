@@ -283,12 +283,12 @@ export function findEnergyTargetsByPriority(
 
     for (const container of containers) {
         const distance = creep.pos.getRangeTo(container.pos);
-        const isNearResource = isContainerNearResource(container, room);
+        // const isNearResource = isContainerNearResource(container, room);
 
-        let basePriority = 50; // 容器基础优先级
-        if (isNearResource) {
-            basePriority = 10; // 资源点附近的容器基础优先级更高
-        }
+        let basePriority = 10; // 容器基础优先级
+        // if (isNearResource) {
+        //     basePriority = 10; // 资源点附近的容器基础优先级更高
+        // }
 
         const effectivePriority = basePriority + distance * 1; // 容器的距离惩罚较轻
 
@@ -338,7 +338,7 @@ export function findEnergyTargetsByPriority(
         if (priority >= 999) continue; // 跳过无效优先级
 
         const distance = creep.pos.getRangeTo(structure.pos);
-        const effectivePriority = priority + distance * 1;
+        const effectivePriority = priority + distance * 3;
 
         candidateTargets.push({
             structure,
@@ -360,7 +360,7 @@ export function findEnergyTargetsByPriority(
 
     // 转换为EnergyTarget格式，只返回最优的几个目标
     const result: EnergyTarget[] = [];
-    for (const candidate of candidateTargets.slice(0, 5)) { // 最多返回5个最优目标
+    for (const candidate of candidateTargets.slice(0, 1)) { // 最多返回5个最优目标
         result.push({
             structure: candidate.structure,
             priority: candidate.basePriority,
