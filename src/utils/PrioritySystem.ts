@@ -217,7 +217,7 @@ export function findEnergyTargetsByPriority(
         if (!includeStorage && structure.structureType === STRUCTURE_STORAGE) continue;
 
         const distance = creep.pos.getRangeTo(structure.pos);
-        let distancePenaltyWeight = 3; // 默认惩罚权重
+        let distancePenaltyWeight = 10; // 默认惩罚权重
 
         // F. 特殊处理：Link
         if (structure.structureType === STRUCTURE_LINK) {
@@ -232,7 +232,7 @@ export function findEnergyTargetsByPriority(
             if (isLinkNearResource(structure as StructureLink, room)) {
                  // 如果是资源点 Link（通常是Miner直接填充），Harvester/Transporter应跳过，除非它是中转。
                  // 保持原逻辑：Harvester 模式下 Link 优先级最高，惩罚最重。
-                 distancePenaltyWeight = 5;
+                 distancePenaltyWeight = 1;
             } else {
                  // 非资源点附近的 Link (例如中央 Link)，如果不是接收目标，也应该跳过
                  // 这里需要更精细的 Link 角色判断，但为保持代码简洁，沿用原逻辑的排除。
@@ -246,7 +246,7 @@ export function findEnergyTargetsByPriority(
         // G. 特殊处理：Container
         else if (structure.structureType === STRUCTURE_CONTAINER) {
             // 容器惩罚最轻
-            distancePenaltyWeight = 1;
+            distancePenaltyWeight = 5;
         }
 
         const effectivePriority = basePriority + distance * distancePenaltyWeight;
