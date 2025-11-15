@@ -33,9 +33,9 @@ const subRoom = {
 
     // body
     const harvestConf = {
-       work: 8,
-      carry: 4,
-      move: 1
+       work: 6,
+      carry: 6,
+      move: 2
     }
     const buildConf = {
       work: 6,
@@ -43,7 +43,7 @@ const subRoom = {
       move: 4
     }
     const upConf = {
-      work: 7,
+      work: 6,
       carry: 6,
       move: 4
     }

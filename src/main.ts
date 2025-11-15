@@ -39,6 +39,8 @@ import TerminalManager from "utils/TerminalManager";
 
 import FactoryManager from "utils/FactoryManager";
 
+import factoryRole from "roles/factoryRole";
+
 import {
     MAIN_SPAWN_NAME
 } from "constant/constants";
@@ -212,6 +214,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   const mainSpawn = MAIN_SPAWN_NAME;
+  const mainRoom = 'W8N8';
   mainRoomRole.create()
 
   const leftRoom = 'W9N8'
@@ -234,6 +237,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TerminalManager.sendResource('W9N8', 'W1N1', 'U', 10000);
   // TerminalManager.sendResource('W9N9', 'W8N8', 'H', 10000);
 
+  // 工厂的操作
+  factoryRole.createFactoryOperator(mainSpawn, mainRoom);
+  factoryRole.GlobalFactoryCommands.battery(mainRoom, true);
+
 
 
   // 执行任务
@@ -243,6 +250,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // 临近死亡转移能量
       if (transferOnDeath(creep)) {
         continue;
+      }
+
+      // factory
+      if (creep.memory.role === 'factoryOperator' && creep.room.name === mainRoom) {
+        // factoryRole.runFactoryOperator(creep);
+        const storageId: Id<StructureStorage> = "68fe5c1af0d4fc0038ec3e98" as Id<StructureStorage>;
+        const factoryId: Id<StructureFactory> = "690cbce95329a70039e8b39c" as Id<StructureFactory>;
+        transporterRole.moveResourceBetweenTargets(creep, 'energy', storageId, factoryId);
       }
 
       // link搬运者

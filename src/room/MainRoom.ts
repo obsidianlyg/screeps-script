@@ -15,6 +15,8 @@ import healerRole from "roles/healer";
 
 import LinkManager from "utils/LinkManager";
 
+import factoryRole from "roles/factoryRole";
+
 import { getSpawnAndExtensionEnergy, getDefaultEneryg } from "utils/GetEnergy";
 
 import {
