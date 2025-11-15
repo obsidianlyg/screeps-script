@@ -34,9 +34,9 @@ const subRoom = {
 
     // body
     const harvestConf = {
-       work: 4,
-      carry: 4,
-      move: 4
+       work: 6,
+      carry: 6,
+      move: 2
     }
     const buildConf = {
       work: 4,
@@ -53,7 +53,7 @@ const subRoom = {
       move: 4
     }
     // creep数量
-    const harvestCount = 1;
+    const harvestCount = 2;
     const buildCount = 1;
     const upCount = 1;
     const transCount = 4;

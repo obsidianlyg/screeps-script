@@ -54,7 +54,7 @@ const subRoom = {
     // creep数量
     const harvestCount = 2;
     const buildCount = 2;
-    const upCount = 3;
+    const upCount = 2;
     const transCount = 4;
 
     const harvestBody = createBodyParts(harvestConf);

@@ -90,9 +90,13 @@ function findSource(creep:Creep) {
                     continue;
                 }
 
-                // if (source.id == '6bb50772cca441b' && (harvestCount >= 1 && isHarvester)) {
-                //     continue;
-                // }
+                if (source.id == '0d080772ccae8f2' && (harvestCount >= 1)) {
+                    continue;
+                }
+
+                if (source.id == '6bb50772cca441b' && (harvestCount >= 1)) {
+                    continue;
+                }
 
                 // 优先级 1：分配人数少的优先
                 if (assignedCount < minAssignedCreeps) {

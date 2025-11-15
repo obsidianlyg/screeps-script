@@ -41,9 +41,9 @@ const mainRoom = {
     // 采集者
     const harvestCount = 2;
     const harvestConf = {
-      work: 7,
+      work: 6,
       carry: 6,
-      move: 4
+      move: 2
     }
     const harvestBody = createBodyParts(harvestConf);
     harvesterRole.createBySpawn(spwanName, calculateBodyCost(harvestBody), harvestCount, harvestBody);
@@ -112,14 +112,14 @@ const mainRoom = {
       role: 'harvester',
       spawn: spwanName,
       conf: {work: 6,carry: 6,move: 6},
-      count: 2,
+      count: 0,
       room: 'W6N8'
     }
     const buildParam: CreepParam = {
       role: 'builder',
       spawn: spwanName,
       conf: {work: 4,carry: 4,move: 4},
-      count: 2,
+      count: 0,
       room: 'W6N8'
     }
     const upParam: CreepParam = {
