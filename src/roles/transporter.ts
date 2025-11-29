@@ -296,6 +296,11 @@ let transporterRole = {
                         // 3. 检查是否有足够的空间容纳矿物
                         const freeCapacity = storeStructure.store.getFreeCapacity(mineralType);
 
+                        // 如果storage低于50%不选择
+                        if (!this.shouldWithdraw(storeStructure)) {
+                            return false;
+                        }
+
                         // 检查 freeCapacity 是否不是 null (即该结构可以存储这种矿物)
                         // 并且容量大于 0
                         if (freeCapacity !== null && freeCapacity > 0) {
@@ -364,6 +369,35 @@ let transporterRole = {
                 }
             }
         }
+    },
+    /**
+     * 检查结构是否是 Storage 并且其 energy 占用低于 50%。
+     * @param {Structure} structure - 待检查的 Screeps 结构对象。
+     * @returns {boolean} - 如果是满足条件的 Storage，则返回 false；否则返回 true。
+     */
+    shouldWithdraw(structure: AnyStructure) {
+        // 1. 判断结构类型是否为 STRUCTURE_STORAGE
+        if (structure.structureType === STRUCTURE_STORAGE) {
+
+            // 2. 检查结构是否有 store 属性（Storage 和 Container 都有）
+            // 3. 检查当前存储的 energy 量是否小于最大容量的 50%
+            //    structure.store.getUsedCapacity(RESOURCE_ENERGY) < structure.store.getCapacity(RESOURCE_ENERGY) * 0.5
+
+            // 注意：如果你希望它是“不值得去取”的条件，你可以让它返回 false。
+            // 如果是“需要更多能量”的条件，你可以让它返回 true。
+
+            const energyUsed = structure.store.getUsedCapacity(RESOURCE_ENERGY);
+            const energyCapacity = structure.store.getCapacity(RESOURCE_ENERGY);
+            const fiftyPercent = energyCapacity * 0.5;
+
+            if (energyUsed < fiftyPercent) {
+                // 如果是 Storage 且 energy 占用低于 50%，则返回 false
+                return false;
+            }
+        }
+
+        // 对于所有其他情况（非 Storage，或 Storage但 energy > 50%），返回 true
+        return true;
     },
 
     /**

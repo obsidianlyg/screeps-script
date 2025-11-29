@@ -44,8 +44,8 @@ const subRoom = {
       move: 4
     }
     const upConf = {
-      work: 4,
-      carry: 4,
+      work: 6,
+      carry: 6,
       move: 4
     }
     const tranConf = {
@@ -54,7 +54,7 @@ const subRoom = {
     }
     // creep数量
     const harvestCount = 2;
-    const buildCount = 1;
+    const buildCount = 2;
     const upCount = 1;
     const transCount = 4;
 
@@ -71,7 +71,9 @@ const subRoom = {
     // link 传输
     const sourceLink: Id<StructureLink> = "69134f1eb6cfe3003b2f7f92" as Id<StructureLink>;
     const targetLink: Id<StructureLink> = "69134dcd5329a70039e96e30" as Id<StructureLink>;
+    const source2Link: Id<StructureLink> = "692af5aa5329a70039eb2e4d" as Id<StructureLink>;
     LinkManager.transferEnergyToLink(sourceLink, targetLink);
+    LinkManager.transferEnergyToLink(source2Link, targetLink);
     // link 搬运者
     const linkTCong = {
       carry: 4,

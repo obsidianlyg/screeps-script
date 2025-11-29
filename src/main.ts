@@ -50,6 +50,10 @@ import w9n8RoomRole from 'room/W9N8Room';
 import w9n9RoomRole from 'room/W9N9Room';
 import w6n8RoomRole from 'room/W6N8Room';
 
+// import LabManager from 'utils/LabManager';
+// import labOperator from 'roles/labOperator';
+import { runLabSystem } from 'examples/LabReactionExample';
+
 declare global {
   /*
     Example types, expand on these or remove them and add your own.
@@ -99,6 +103,21 @@ declare global {
         compressionThreshold?: { [key: string]: number };
         decompressResources?: { [key: string]: number };
       };
+    };
+    reactionTasks?: {
+      [roomName: string]: Array<{
+        id: string;
+        resultType: ResourceConstant;
+        reagent1: ResourceConstant;
+        reagent2: ResourceConstant;
+        amount: number;
+        priority: number;
+        status: 'pending' | 'running' | 'completed' | 'failed';
+        created: number;
+        lab1Id?: Id<StructureLab>;
+        lab2Id?: Id<StructureLab>;
+        resultLabId?: Id<StructureLab>;
+      }>;
     };
   }
 
@@ -195,6 +214,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   if (Game.time === 1) {
     TerminalManager.initializeMemory();
     // Factory相关Memory会在使用时自动初始化
+    // Lab相关Memory会在使用时自动初始化
   }
 
   // Automatically delete memory of missing creeps
@@ -215,10 +235,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const mainSpawn = MAIN_SPAWN_NAME;
   const mainRoom = 'W8N8';
-  mainRoomRole.create()
+  mainRoomRole.create();
 
   const leftRoom = 'W9N8'
-  w9n8RoomRole.create()
+  w9n8RoomRole.create();
 
   const w9n9 = 'W9N9'
   w9n9RoomRole.create();
@@ -226,20 +246,40 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const w6n8 = 'W6N8'
   w6n8RoomRole.create();
 
+  // 实验室系统初始化（在特定时间执行）
+  // if (Game.time === 1469600) {
+  //   // 初始化实验室系统并创建基础任务
+  //   LabManager.initializeMemory(mainRoom);
+  //   const labs = LabManager.getLabs(mainRoom);
+  //   console.log(`房间 ${mainRoom} 有 ${labs.length} 个实验室`);
+
+  //   if (labs.length >= 3) {
+  //     LabManager.createBasicReactions(mainRoom);
+  //     console.log(`为房间 ${mainRoom} 创建基础反应任务`);
+
+  //     // 创建实验室操作员
+  //     labOperator.create(mainSpawn, mainRoom, 1);
+  //   }
+  // }
+
+  // 实验室系统处理
+  // runLabSystem(mainRoom);
+
   // terminal
   if (Game.time === 1469380) {
 
   }
-  // TerminalManager.sendResource('W8N8', 'W1N1', 'Z', 10000);
+  // TerminalManager.sendResource('W8N8', 'W1N1', 'energy', 10000);
   if (Game.time === 1469510) {
     TerminalManager.sendResource('W9N8', 'W8N8', 'U', 10000);
   }
   // TerminalManager.sendResource('W9N8', 'W1N1', 'U', 10000);
-  // TerminalManager.sendResource('W9N9', 'W8N8', 'H', 10000);
+  // TerminalManager.sendResource('W9N9', 'W2N1', 'H', 10000);
 
   // 工厂的操作
-  factoryRole.createFactoryOperator(mainSpawn, mainRoom);
-  factoryRole.GlobalFactoryCommands.battery(mainRoom, true);
+  // factoryRole.createFactoryOperator(mainSpawn, mainRoom);
+  // factoryRole.GlobalFactoryCommands.battery(mainRoom, true);
+  // FactoryManager.compressResource(mainRoom, 'Z', 500);
 
 
 
@@ -301,7 +341,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const terminalRealId: Id<StructureTerminal> = "690f46cd5329a70039e8e9bd" as Id<StructureTerminal>;
         // transporterRole.moveResourceBetweenTargets(creep, "energy", terminalRealId, storageId);
         // transporterRole.moveResourceBetweenTargets(creep, "energy", storageId, terminalRealId);
-        // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, storageId, terminalRealId);
+        // transporterRole.moveResourceBetweenTargets(creep, 'H', storageId, terminalRealId);
         // transporterRole.moveResourceBetweenTargets(creep, RESOURCE_ZYNTHIUM, terminalRealId, storageId);
         continue;
       }
@@ -343,6 +383,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (creep.memory.role.startsWith('transporter')) {
         transporterRole.run(creep);
       }
+
+      // 实验室操作员
+      // if (creep.memory.role == 'labOperator') {
+      //   labOperator.run(creep);
+      // }
 
       // 占领
       if (creep.memory.role == 'claimer') {

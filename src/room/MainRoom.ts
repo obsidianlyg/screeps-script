@@ -53,9 +53,9 @@ const mainRoom = {
     // 升级者
     const upCount = 1;
     const upConf = {
-      work: 8,
-      carry: 6,
-      move: 4
+      work: 1,
+      carry: 2,
+      move: 3
     }
     const upBody = createBodyParts(upConf);
     upgradeRole.createBySpawn(spwanName, calculateBodyCost(upBody), upCount, harvestCount, upBody);
@@ -80,7 +80,7 @@ const mainRoom = {
     transporterRole.createBySpawn(spwanName, calculateBodyCost(mainBodyTrans), transCount, mainBodyTrans, 'energy')
 
     // 矿工
-    const minerCount = 1;
+    const minerCount = 0;
     const minerConf = {
       work: 8,
       carry: 1,

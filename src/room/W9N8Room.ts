@@ -100,7 +100,7 @@ const subRoom = {
     // upgradeRole.createVolunteerBySpawn(roomName, 'W9N9', calculateBodyCost(upBodyV), 1,  upBodyV);
 
         // 矿工
-    const minerCount = 1;
+    const minerCount = 0;
     const minerConf = {
       work: 8,
       carry: 1,
